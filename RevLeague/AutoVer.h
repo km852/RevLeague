@@ -1,0 +1,4 @@
+#pragma once
+
+#define AUTOVER_BUILD_NUMBER "81"
+#define AUTOVER_VERSION AUTOVER_BUILD_NUMBER
