@@ -3,7 +3,9 @@
 #include <cstdint>
 #include <bit>
 #include <memory>
+#include <ranges>
 
+#include "Vector3.h"
 #include "Dependencies/json.hpp"
 
 // Platform sanity checks, we never expect any of the below to fail.
@@ -26,6 +28,9 @@ class LvGameClock;
 class LvGameTimer;
 class LvPlayer;
 class LvClient;
+class LvMap;
+class IMapScript;
+class MapSRScript;
 
 enum LvTeam {
 	TT_NONE,
@@ -45,6 +50,7 @@ enum LvGameState {
 	GST_GAMEPLAY
 };
 
+// TODO: verify that channels 2, 3 and 4 don't really differ in processing
 enum LvPacketChannel : unsigned char {
 	PCH_Registration = 0,
 	PCH_ClientToServer = 1,
@@ -70,3 +76,28 @@ enum LvPacketProcessingResult {
 	PPR_FAIL_DISCONNECT, // packet was not processed, disconnect the peer
 	PPR_FAIL_PRINT_DISCONNECT // packet was not processed, print to console and disconnect the peer
 };
+
+enum LvMapId {
+	MID_UNKNOWN = -1,
+	MID_SUMMONERS_RIFT = 1
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(LvMapId,
+{
+	{ MID_UNKNOWN, "UNKNOWN" }, { MID_SUMMONERS_RIFT, "SUMMONERS_RIFT" },
+});
+
+inline int EnumToNetwork(LvTeam team)
+{
+	switch (team)
+	{
+	case TT_BLUE:
+		return 100;
+	case TT_RED:
+		return 200;
+	case TT_NEUTRAL:
+		return 300;
+	}
+
+	return 0;
+}

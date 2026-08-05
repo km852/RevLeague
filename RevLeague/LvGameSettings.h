@@ -19,6 +19,7 @@ struct LvGameSettings final : public NvNonCopyable {
 	unsigned short listenPort; // host-order
 	unsigned long long gameId;
 	std::vector<PlayerInfo> players;
+	LvMapId mapId;
 
 	LvGameSettings(const nlohmann::json& obj);
 };

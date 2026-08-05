@@ -2,12 +2,15 @@
 
 #include "NvLib.h"
 #include "LvTypes.h"
+#include "LvClient.h"
+#include "LvPlayer.h"
+#include "LvGameSettings.h"
 
 #include "Dependencies/enet/enet.h"
 
 class LvGame final : public NvNonCopyable {
 	struct PendingPacket {
-		std::shared_ptr<LvClient> targetClient;
+		LvClient* targetClient;
 		ENetPacket* packet;
 		LvPacketChannel channelId;
 	};
@@ -32,6 +35,24 @@ class LvGame final : public NvNonCopyable {
 public:
 	inline LvGameState GetState() { return this->state; }
 	void SetState(LvGameState newState);
+
+	inline unsigned long long GetGameId() { return settings->gameId; }
+
+	void AddPacketToQueue(LvClient* targetClient, LvPacketChannel channelId, ENetPacket* packet);
+
+	auto GetPlayers() const {
+		return this->players | std::views::transform([](const std::unique_ptr<LvPlayer>& v) { return v.get(); });
+	}
+
+	auto GetConnectedPlayers() const {
+		return this->players | std::views::transform([](const std::unique_ptr<LvPlayer>& v) { return v.get(); }) |
+			std::views::filter([](LvPlayer* v) { return v->GetClient() != nullptr; });
+	}
+
+	auto GetInGamePlayers() const {
+		return this->players | std::views::transform([](const std::unique_ptr<LvPlayer>& v) { return v.get(); }) |
+			std::views::filter([](LvPlayer* v) { return v->GetClient() && v->GetClient()->GetState() == CST_IN_GAME; });
+	}
 
 	LvPlayer* GetPlayerByUserId(unsigned long long userId);
 

@@ -235,6 +235,14 @@ std::vector<unsigned char> NvBinaryStreamRead::ReadBytes(size_t len)
 	return retval;
 }
 
+void NvBinaryStreamRead::SkipBytes(size_t byteCount)
+{
+	if (this->currentPos + byteCount > this->dataLength)
+		throw NvStreamException(std::format("Read overrun of {} bytes (skipping) while at byte position {}/{}", byteCount, this->currentPos, this->dataLength));
+
+	this->currentPos += byteCount;
+}
+
 unsigned long long NvBinaryStreamRead::ReadVarInt64()
 {
 	unsigned long long val = 0;
@@ -251,18 +259,36 @@ unsigned long long NvBinaryStreamRead::ReadVarInt64()
 	throw NvStreamException("VarInt64 read exceeded byte limit!");
 }
 
-void NvBinaryStreamWrite::WriteBytes(void* buf, size_t len)
+void NvBinaryStreamWrite::WriteRepeatByte(unsigned char byte, size_t len)
+{
+	this->buffer.insert(this->buffer.end(), len, byte);
+}
+
+void NvBinaryStreamWrite::WriteBytes(const void* buf, size_t len)
 {
 	this->buffer.insert(this->buffer.end(), (unsigned char*)buf, (unsigned char*)buf + len);
 }
 
-void NvBinaryStreamWrite::WriteBytesEndianAware(void* buf, size_t len)
+void NvBinaryStreamWrite::WriteBytesEndianAware(const void* buf, size_t len)
 {
 	this->WriteBytes(buf, len);
 	if (this->swappedEndianness || this->swappedEndiannessForNextOp)
 		std::reverse(this->buffer.rbegin(), this->buffer.rbegin() + len);
 
 	this->swappedEndiannessForNextOp = false;
+}
+
+void NvBinaryStreamWrite::WritePaddedString(const std::string& s, size_t maxLength)
+{
+	if (s.size() <= maxLength)
+	{
+		WriteBytes(s.data(), s.size());
+		WriteRepeatByte(0, maxLength - s.size());
+	}
+	else
+	{
+		WriteBytes(s.data(), maxLength);
+	}
 }
 
 void NvBinaryStreamWrite::WriteVarInt64(unsigned long long val)
@@ -278,7 +304,7 @@ void NvBinaryStreamWrite::WriteVarInt64(unsigned long long val)
 	} while (val);
 }
 
-template<> void NvBinaryStreamWrite::Write(std::string val)
+template<> void NvBinaryStreamWrite::Write(std::string& val)
 {
 	this->WriteVarInt64(val.size());
 	this->WriteBytes(val.data(), val.size());

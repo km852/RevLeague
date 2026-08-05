@@ -27,6 +27,7 @@ LvGameSettings::LvGameSettings(const json& obj)
 	this->listenHost = IPv4ToInt(obj.value<std::string>("ListenHost", ""));
     this->listenPort = obj.value<unsigned short>("ListenPort", 6266);
     this->gameId = obj.at("GlobalGameId").get<unsigned long long>();
+    this->mapId = obj.at("MapId").get<LvMapId>();
 
     for (auto&& player : obj.at("Players"))
         this->players.emplace_back(player);

@@ -119,12 +119,14 @@
     <ClCompile Include="LvGame.cpp" />
     <ClCompile Include="LvGameSettings.cpp" />
     <ClCompile Include="LvGameTimer.cpp" />
+    <ClCompile Include="LvMap.cpp" />
     <ClCompile Include="LvNetwork.cpp" />
     <ClCompile Include="LvPlayer.cpp" />
     <ClCompile Include="LvProtocol.cpp" />
     <ClCompile Include="LvServer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="NvLib.cpp" />
+    <ClCompile Include="Scripts\Maps\MapSRScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AutoVer.h" />
@@ -144,11 +146,14 @@
     <ClInclude Include="LvGame.h" />
     <ClInclude Include="LvGameSettings.h" />
     <ClInclude Include="LvGameTimer.h" />
+    <ClInclude Include="LvMap.h" />
     <ClInclude Include="LvNetwork.h" />
     <ClInclude Include="LvPlayer.h" />
     <ClInclude Include="LvProtocol.h" />
     <ClInclude Include="LvTypes.h" />
     <ClInclude Include="NvLib.h" />
+    <ClInclude Include="Scripts\Maps\IMapScript.h" />
+    <ClInclude Include="Scripts\Maps\MapSRScript.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

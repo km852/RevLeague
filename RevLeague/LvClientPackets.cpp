@@ -1,6 +1,7 @@
 #include "LvClient.h"
 #include "LvGame.h"
 #include "LvPlayer.h"
+#include "LvProtocol.h"
 
 LvPacketProcessingResult LvClient::HandleRegistration(NvBinaryStreamRead& stream)
 {
@@ -40,6 +41,94 @@ LvPacketProcessingResult LvClient::HandleRegistration(NvBinaryStreamRead& stream
 	this->SetPlayer(player);
 
 	LogInfo("Player {} ({}) connecting from {}", cleartextUserId, player->GetPlayerName(), this->GetEndpointString());
+
+	for (LvPlayer* connPlayer : lvGame->GetConnectedPlayers())
+		connPlayer->GetClient()->SendPacket(PCH_Registration, LvProtocol::CreatePeerRegistration(player, player == connPlayer ? encryptedUserId : 0)); // surprisingly this packet is encrypted
+
+	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateSendGameNumber(player));
+	return PPR_SUCCESS;
+}
+
+LvPacketProcessingResult LvClient::HandleQueryStatus()
+{
+	if (this->GetState() != CST_REGISTERED)
+		return PPR_SUCCESS;
+
+	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateQueryStatusAnswer());
+	return PPR_SUCCESS;
+}
+
+LvPacketProcessingResult LvClient::HandleSynchVersion(NvBinaryStreamRead& stream)
+{
+	if (this->GetState() != CST_REGISTERED)
+		return PPR_SUCCESS;
+
+	stream.SkipBytes(9); // skip header + netId + useless cid
+
+	char versionStringBuf[256];
+	stream.ReadBytes(versionStringBuf, 256);
+
+	versionStringBuf[std::size(versionStringBuf) - 1] = 0;
+	if (strcmp(versionStringBuf, EXPECTED_GAME_VERSION_STRING) != 0)
+	{
+		LogWarning("Player {} ({}): invalid game version: got \"{}\", expected \"{}\"", this->GetPlayer()->GetUserId(), this->GetPlayer()->GetPlayerName(),
+			versionStringBuf, EXPECTED_GAME_VERSION_STRING);
+		return PPR_FAIL_DISCONNECT;
+	}
+
+	this->SetState(CST_LOADING);
+	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateSynchVersionAnswer());
+
+	return PPR_SUCCESS;
+}
+
+LvPacketProcessingResult LvClient::HandleCharSelected()
+{
+	if (this->GetState() != CST_LOADING)
+		return PPR_SUCCESS;
+
+	this->SendPacket(PCH_LoadingScreen, LvProtocol::CreateLoadingTeamRosterUpdate());
+
+	for (LvPlayer* player : lvGame->GetPlayers())
+	{
+		this->SendPacket(PCH_LoadingScreen, LvProtocol::CreateLoadingSetName(player));
+		this->SendPacket(PCH_LoadingScreen, LvProtocol::CreateLoadingSetSkin(player));
+	}
+
+	return PPR_SUCCESS;
+}
+
+LvPacketProcessingResult LvClient::HandlePingLoadInfo(NvBinaryStreamRead& stream)
+{
+	if (this->GetState() != CST_LOADING && this->GetState() != CST_LOADED && this->GetState() != CST_POST_LOADED)
+		return PPR_SUCCESS;
+
+	stream.SkipBytes(5); // header + netId (unused)
+	stream.SkipBytes(4); // cid (obviously we know it)
+	stream.SkipBytes(8); // userId (we know it as well)
+
+	float percentageLoaded = stream.Read<float>();
+	float eta = stream.Read<float>();
+	unsigned int extraInfo = stream.Read<unsigned int>();
+	bool isReady = (stream.Read<unsigned char>() & 1) != 0; // I suspect "isReady" was supposed to be a part of "extraInfo", but due to a League bug it ended up in a separate byte.
+
+	this->loadingProgress = LoadingProgress(percentageLoaded, eta, extraInfo, isReady);
+	if (!this->firstSelfLoadingPacketSent)
+	{
+		this->SendPacket(PCH_LowPriority, LvProtocol::CreatePingLoadInfo(this->GetPlayer()));
+		this->firstSelfLoadingPacketSent = true;
+	}
+
+	return PPR_SUCCESS;
+}
+
+LvPacketProcessingResult LvClient::HandleClientReady()
+{
+	if (this->GetState() != CST_LOADING)
+		return PPR_SUCCESS;
+
+	this->SetState(CST_LOADED);
+	LogInfo("Player {} ({}): loading completed", this->GetPlayer()->GetUserId(), this->GetPlayer()->GetPlayerName());
 
 	return PPR_SUCCESS;
 }

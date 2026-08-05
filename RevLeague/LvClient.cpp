@@ -1,5 +1,7 @@
 #include "LvClient.h"
 #include "LvPlayer.h"
+#include "LvGame.h"
+#include "LvProtocol.h"
 
 LvClient::LvClient(ENetPeer* peer)
 {
@@ -20,6 +22,22 @@ void LvClient::SetPlayer(LvPlayer* player)
 		this->associatedPlayer->SetClient(this);
 }
 
+void LvClient::SendPacket(LvPacketChannel channelId, ENetPacket* packet, bool encryptPacket)
+{
+	LogAssert(channelId != PCH_ClientToServer); // did you perhaps mean ServerToClient?
+
+	if (encryptPacket && this->GetPlayer())
+		this->GetPlayer()->Encrypt(packet);
+
+	lvGame->AddPacketToQueue(this, channelId, packet);
+}
+
+void LvClient::SendPacket(LvPacketChannel channelId, const NvBinaryStreamWrite& packet, unsigned int flags, bool encryptPacket)
+{
+	const auto& pktData = packet.GetUnderlyingBuffer();
+	this->SendPacket(channelId, enet_packet_create(pktData.data(), pktData.size(), flags), encryptPacket);
+}
+
 LvPacketProcessingResult LvClient::ProcessPacket(LvPacketChannel channel, unsigned char* packetData, size_t packetSize)
 {
 	if (packetSize == 0)
@@ -33,6 +51,30 @@ LvPacketProcessingResult LvClient::ProcessPacket(LvPacketChannel channel, unsign
 
 	if (channel == PCH_Registration)
 		return this->HandleRegistration(packetStream);
+
+	if (channel == PCH_ClientToServer)
+	{
+		switch (packetHeader)
+		{
+		case LvProtocol::PKT_C2S_QueryStatusReq:
+			return this->HandleQueryStatus();
+
+		case LvProtocol::PKT_SynchVersionC2S:
+			return this->HandleSynchVersion(packetStream);
+
+		case LvProtocol::PKT_C2S_Ping_Load_Info:
+			return this->HandlePingLoadInfo(packetStream);
+
+		case LvProtocol::PKT_C2S_ClientReady:
+			return this->HandleClientReady();
+		}
+	}
+
+	if (channel == PCH_LoadingScreen)
+	{
+		if (packetHeader == LvProtocol::PKT_C2S_CharSelected)
+			return this->HandleCharSelected();
+	}
 
     return PPR_FAIL_PRINT;
 }

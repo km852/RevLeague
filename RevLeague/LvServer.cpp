@@ -3,6 +3,7 @@
 #include "LvGame.h"
 #include "LvGameTimer.h"
 #include "LvTypes.h"
+#include "LvMap.h"
 #include "AutoVer.h"
 #include "Dependencies/json.hpp"
 
@@ -94,6 +95,8 @@ int LvServerStart(int argc, char* argv[])
 
 	lvNetwork = new LvNetwork(gameSettings->listenHost, gameSettings->listenPort);
 	lvNetwork->StartListen();
+
+	lvMap = new LvMap(gameSettings->mapId, "");
 
 	lvGame = new LvGame(gameSettings.get());
 	lvGame->GameLoop();

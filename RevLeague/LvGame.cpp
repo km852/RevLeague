@@ -17,6 +17,11 @@ LvGame::LvGame(LvGameSettings* settings)
 		this->players.push_back(std::make_unique<LvPlayer>(&playerInfo));
 }
 
+void LvGame::AddPacketToQueue(LvClient* targetClient, LvPacketChannel channelId, ENetPacket* packet)
+{
+	pendingPackets.push_back({ targetClient, packet, channelId });
+}
+
 LvPlayer* LvGame::GetPlayerByUserId(unsigned long long userId)
 {
 	for (auto& player : this->players)
@@ -45,6 +50,9 @@ void LvGame::ProcessENetEvents()
 
 			LvClient* client = new LvClient(peer);
 			peer->data = client;
+
+			// TODO: figure out highest possible MTU (leaving it at default caused non-deliveries of big packets like SynchVersionS2C)
+			peer->mtu = std::min(peer->mtu, (enet_uint16)ENET_PROTOCOL_MINIMUM_MTU);
 
 			this->clients.push_back(client);
 		}

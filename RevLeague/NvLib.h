@@ -170,6 +170,8 @@ public:
 	void ReadBytesEndianAware(void* buf, size_t len);
 	std::vector<unsigned char> ReadBytes(size_t len);
 
+	void SkipBytes(size_t byteCount);
+
 	unsigned long long ReadVarInt64();
 
 	template <typename T>
@@ -188,6 +190,8 @@ template<> inline short NvBinaryStreamRead::Read() { return ReadPrimitive<short>
 template<> inline unsigned short NvBinaryStreamRead::Read() { return ReadPrimitive<unsigned short>(); }
 template<> inline int NvBinaryStreamRead::Read() { return ReadPrimitive<int>(); }
 template<> inline unsigned int NvBinaryStreamRead::Read() { return ReadPrimitive<unsigned int>(); }
+template<> inline float NvBinaryStreamRead::Read() { return ReadPrimitive<float>(); }
+template<> inline double NvBinaryStreamRead::Read() { return ReadPrimitive<double>(); }
 template<> inline long long NvBinaryStreamRead::Read() { return ReadPrimitive<long long>(); }
 template<> inline unsigned long long NvBinaryStreamRead::Read() { return ReadPrimitive<unsigned long long>(); }
 
@@ -203,11 +207,13 @@ public:
 	inline void SetEndianness(NvStreamEndianness endianness) { swappedEndianness = endianness == NvStreamEndianness::BigEndian; }
 	inline void SetEndiannessForNextOperation(NvStreamEndianness endianness) { swappedEndiannessForNextOp = endianness == NvStreamEndianness::BigEndian; }
 
-	inline const std::vector<unsigned char>& GetUnderlyingBuffer() { return buffer; }
+	inline const std::vector<unsigned char>& GetUnderlyingBuffer() const { return buffer; }
 
-	void WriteBytes(void* buf, size_t len);
-	void WriteBytesEndianAware(void* buf, size_t len);
-
+	void WriteRepeatByte(unsigned char byte, size_t len);
+	void WriteBytes(const void* buf, size_t len);
+	void WriteBytesEndianAware(const void* buf, size_t len);
+	
+	void WritePaddedString(const std::string& s, size_t maxLength);
 	void WriteVarInt64(unsigned long long val);
 
 	template <typename T>
@@ -226,7 +232,7 @@ template<> inline void NvBinaryStreamWrite::Write(float val) { return WriteBytes
 template<> inline void NvBinaryStreamWrite::Write(double val) { return WriteBytesEndianAware(&val, sizeof(double)); }
 template<> inline void NvBinaryStreamWrite::Write(long long val) { return WriteBytesEndianAware(&val, sizeof(long long)); }
 template<> inline void NvBinaryStreamWrite::Write(unsigned long long val) { return WriteBytesEndianAware(&val, sizeof(unsigned long long)); }
-template<> void NvBinaryStreamWrite::Write(std::string val);
+template<> void NvBinaryStreamWrite::Write(std::string& val);
 
 // ====================================================== Logger ======================================================
 
