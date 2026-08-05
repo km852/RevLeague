@@ -1,6 +1,6 @@
 #include "LvGame.h"
 #include "LvGameSettings.h"
-#include "LvGameTimer.h"
+#include "LvGameClock.h"
 #include "LvClient.h"
 #include "LvPlayer.h"
 #include "LvNetwork.h"
@@ -67,7 +67,10 @@ void LvGame::ProcessENetEvents()
 
 				auto it = std::find(this->clients.begin(), this->clients.end(), client);
 				if (LogAssert(it != this->clients.end()))
+				{
+					client->SetPlayer(nullptr);
 					this->clients.erase(it);
+				}
 			}
 
 			delete client;
@@ -115,6 +118,9 @@ void LvGame::GameLoopInternal()
 	this->processingNetEvents = true;
 	this->ProcessENetEvents();
 	this->processingNetEvents = false;
+	
+	this->GameUpdate_Loading();
+	this->GameUpdate_Gameplay();
 }
 
 void LvGame::GameLoop()

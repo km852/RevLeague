@@ -46,7 +46,9 @@ public:
 	const std::string& GetCharacterName() const { return characterName; }
 
 	LvClient* GetClient() { return associatedClient; }
-	void SetClient(LvClient* client); // unless client is nullptr, will also associate the client with this player
+
+	// DO NOT CALL THIS FUNCTION. This is reserved only for LvClient::SetPlayer. Use that instead.
+	void SetClient(LvClient* client);
 
 	unsigned long long Encrypt(unsigned long long value);
 	void Encrypt(unsigned char* buffer, size_t bufferLength);

@@ -5,7 +5,7 @@
 
 NvBinaryStreamWrite LvProtocol::CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey)
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(36);
 
     writer.Write<int>(0); // header = 0
     writer.Write<int>(player->GetPlayerIndex()); // cid (client ID), we call it "player index"
@@ -19,7 +19,7 @@ NvBinaryStreamWrite LvProtocol::CreatePeerRegistration(LvPlayer* player, unsigne
 
 NvBinaryStreamWrite LvProtocol::CreateSendGameNumber(LvPlayer* player)
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(150);
 
     writer.Write(PKT_World_SendGameNumber);
     writer.Write<int>(0);
@@ -31,7 +31,7 @@ NvBinaryStreamWrite LvProtocol::CreateSendGameNumber(LvPlayer* player)
 
 NvBinaryStreamWrite LvProtocol::CreateQueryStatusAnswer()
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(10);
 
     writer.Write(PKT_S2C_QueryStatusAns);
     writer.Write<int>(0);
@@ -42,7 +42,7 @@ NvBinaryStreamWrite LvProtocol::CreateQueryStatusAnswer()
 
 NvBinaryStreamWrite LvProtocol::CreateSynchVersionAnswer()
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(5000);
 
     writer.Write(PKT_SynchVersionS2C);
     writer.Write<int>(0);
@@ -97,7 +97,7 @@ NvBinaryStreamWrite LvProtocol::CreateSynchVersionAnswer()
 
 NvBinaryStreamWrite LvProtocol::CreateLoadingTeamRosterUpdate()
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(512);
 
     writer.Write(PKT_Loading_TeamRosterUpdate);
     writer.WriteRepeatByte(0, 3); // struct padding (useless)
@@ -140,7 +140,7 @@ NvBinaryStreamWrite LvProtocol::CreateLoadingTeamRosterUpdate()
 
 NvBinaryStreamWrite LvProtocol::CreateLoadingSetSkin(LvPlayer* player)
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(64);
 
     writer.Write(PKT_Loading_SetSkin);
     writer.WriteRepeatByte(0, 7); // struct padding (useless)
@@ -154,7 +154,7 @@ NvBinaryStreamWrite LvProtocol::CreateLoadingSetSkin(LvPlayer* player)
 
 NvBinaryStreamWrite LvProtocol::CreateLoadingSetName(LvPlayer* player)
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(64);
 
     writer.Write(PKT_Loading_SetName);
     writer.WriteRepeatByte(0, 7); // struct padding (useless)
@@ -168,7 +168,7 @@ NvBinaryStreamWrite LvProtocol::CreateLoadingSetName(LvPlayer* player)
 
 NvBinaryStreamWrite LvProtocol::CreatePingLoadInfo(LvPlayer* player)
 {
-    NvBinaryStreamWrite writer;
+    NvBinaryStreamWrite writer(32);
 
     writer.Write(PKT_S2C_Ping_Load_Info);
     writer.Write<int>(0);
@@ -190,6 +190,50 @@ NvBinaryStreamWrite LvProtocol::CreatePingLoadInfo(LvPlayer* player)
     }
 
     LogAssert(writer.GetUnderlyingBuffer().size() == 30); // sanity check
+
+    return writer;
+}
+
+NvBinaryStreamWrite LvProtocol::CreateStartSpawn()
+{
+    NvBinaryStreamWrite writer(10);
+
+    writer.Write(PKT_S2C_StartSpawn);
+    writer.Write<int>(0);
+    writer.Write<unsigned char>(0); // numbBotsOrder
+    writer.Write<unsigned char>(0); // numbBotsChaos
+
+    return writer;
+}
+
+NvBinaryStreamWrite LvProtocol::CreateEndSpawn()
+{
+    NvBinaryStreamWrite writer(10);
+
+    writer.Write(PKT_S2C_EndSpawn);
+    writer.Write<int>(0);
+
+    return writer;
+}
+
+NvBinaryStreamWrite LvProtocol::CreateStartGame()
+{
+    NvBinaryStreamWrite writer(10);
+
+    writer.Write(PKT_S2C_StartGame);
+    writer.Write<int>(0);
+    writer.Write<unsigned char>(0); // lowermost bit: is pause enabled
+
+    return writer;
+}
+
+NvBinaryStreamWrite LvProtocol::CreateCreateHero()
+{
+    NvBinaryStreamWrite writer(256);
+
+    writer.Write(PKT_S2C_CreateHero);
+    writer.Write<int>(0);
+    writer.Write<unsigned char>(0); // lowermost bit: is pause enabled
 
     return writer;
 }

@@ -60,6 +60,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -88,6 +89,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,7 +120,9 @@
     <ClCompile Include="LvClient.cpp" />
     <ClCompile Include="LvGame.cpp" />
     <ClCompile Include="LvGameSettings.cpp" />
-    <ClCompile Include="LvGameTimer.cpp" />
+    <ClCompile Include="LvGameClock.cpp" />
+    <ClCompile Include="LvGame_Gameplay.cpp" />
+    <ClCompile Include="LvGame_Loading.cpp" />
     <ClCompile Include="LvMap.cpp" />
     <ClCompile Include="LvNetwork.cpp" />
     <ClCompile Include="LvPlayer.cpp" />
@@ -145,7 +149,7 @@
     <ClInclude Include="LvClient.h" />
     <ClInclude Include="LvGame.h" />
     <ClInclude Include="LvGameSettings.h" />
-    <ClInclude Include="LvGameTimer.h" />
+    <ClInclude Include="LvGameClock.h" />
     <ClInclude Include="LvMap.h" />
     <ClInclude Include="LvNetwork.h" />
     <ClInclude Include="LvPlayer.h" />

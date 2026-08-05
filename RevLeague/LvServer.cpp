@@ -1,7 +1,7 @@
 #include "LvNetwork.h"
 #include "LvGameSettings.h"
 #include "LvGame.h"
-#include "LvGameTimer.h"
+#include "LvGameClock.h"
 #include "LvTypes.h"
 #include "LvMap.h"
 #include "AutoVer.h"

@@ -12,6 +12,7 @@ class LvClient final : public NvNonCopyable {
 		unsigned int count = 0;
 		unsigned int ping = 1000;
 		bool isReady = false;
+		bool isDefaultConstructed = true;
 
 		unsigned int MakeExtraData() const
 		{
@@ -23,6 +24,7 @@ class LvClient final : public NvNonCopyable {
 		{
 			count = extraInfo & 0xffff;
 			ping = (extraInfo >> 16) & 0x7fff;
+			isDefaultConstructed = false;
 		}
 	};
 
@@ -33,10 +35,10 @@ class LvClient final : public NvNonCopyable {
 	
 	LvPlayer* associatedPlayer = nullptr;
 	LoadingProgress loadingProgress;
-	bool firstSelfLoadingPacketSent = false;
 
 public:
 	explicit LvClient(ENetPeer* peer);
+	~LvClient();
 
 	ENetPeer* GetENetPeer() const { return peer; }
 	const std::string& GetEndpointString() const { return endpointString; }
@@ -48,7 +50,9 @@ public:
 	void SetState(LvClientState newState);
 
 	LvPlayer* GetPlayer() const { return associatedPlayer; }
-	void SetPlayer(LvPlayer* player); // unless player is nullptr, will also associate the player with this client
+	void SetPlayer(LvPlayer* player); // will also update the LvPlayer's association
+
+	void FinishLoading();
 
 	void SendPacket(LvPacketChannel channelId, ENetPacket* packet, bool encryptPacket = true);
 	void SendPacket(LvPacketChannel channelId, const NvBinaryStreamWrite& packet, unsigned int enetFlags = ENET_PACKET_FLAG_RELIABLE, bool encryptPacket = true);

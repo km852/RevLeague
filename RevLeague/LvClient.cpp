@@ -10,16 +10,46 @@ LvClient::LvClient(ENetPeer* peer)
         (uint8_t)((peer->address.host >> 16) & 0xFF), (uint8_t)((peer->address.host >> 24) & 0xFF), peer->address.port);
 }
 
+LvClient::~LvClient()
+{
+	this->SetPlayer(nullptr);
+}
+
 void LvClient::SetState(LvClientState newState)
 {
+	LogDebug("Setting state to {}", (int)newState);
 	this->state = newState;
 }
 
 void LvClient::SetPlayer(LvPlayer* player)
 {
-	this->associatedPlayer = player;
-	if (player && this->associatedPlayer->GetClient() != this)
-		this->associatedPlayer->SetClient(this);
+	if (player)
+	{
+		LogAssert(player->GetClient() == nullptr);
+		if (!LogAssert(this->associatedPlayer == nullptr))
+			this->associatedPlayer->SetClient(nullptr);
+
+		this->associatedPlayer = player;
+		player->SetClient(this);
+	}
+	else
+	{
+		if (this->associatedPlayer)
+			this->associatedPlayer->SetClient(nullptr);
+
+		this->associatedPlayer = nullptr;
+	}
+}
+
+void LvClient::FinishLoading()
+{
+	if (!LogAssert(this->state == CST_LOADED))
+		return;
+
+	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateStartSpawn());
+	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateEndSpawn());
+
+	this->SetState(CST_POST_LOADED);
 }
 
 void LvClient::SendPacket(LvPacketChannel channelId, ENetPacket* packet, bool encryptPacket)

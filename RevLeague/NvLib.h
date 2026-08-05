@@ -220,6 +220,7 @@ public:
 	void Write(T val);
 
 	inline NvBinaryStreamWrite() {}
+	inline NvBinaryStreamWrite(size_t reservedBytes) : buffer() { this->buffer.reserve(reservedBytes); }
 };
 
 template<> inline void NvBinaryStreamWrite::Write(char val) { return WriteBytesEndianAware(&val, sizeof(char)); }

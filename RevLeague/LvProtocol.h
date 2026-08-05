@@ -21,6 +21,8 @@ namespace LvProtocol {
 		PKT_C2S_ClientReady = 0xBE,
 		PKT_S2C_StartSpawn = 0x62,
 		PKT_S2C_EndSpawn = 0x11,
+		PKT_S2C_StartGame = 0x5C,
+		PKT_S2C_CreateHero = 0x4C,
 	};
 
 	NvBinaryStreamWrite CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey);
@@ -31,6 +33,10 @@ namespace LvProtocol {
 	NvBinaryStreamWrite CreateLoadingSetSkin(LvPlayer* player);
 	NvBinaryStreamWrite CreateLoadingSetName(LvPlayer* player);
 	NvBinaryStreamWrite CreatePingLoadInfo(LvPlayer* player);
+	NvBinaryStreamWrite CreateStartSpawn();
+	NvBinaryStreamWrite CreateEndSpawn();
+	NvBinaryStreamWrite CreateStartGame();
+	NvBinaryStreamWrite CreateCreateHero();
 }
 
 template<>

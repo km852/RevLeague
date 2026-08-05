@@ -26,8 +26,6 @@ LvPlayer::LvPlayer(LvGameSettings::PlayerInfo* playerInfo)
 void LvPlayer::SetClient(LvClient* client)
 {
 	this->associatedClient = client;
-	if (client && this->associatedClient->GetPlayer() != this)
-		this->associatedClient->SetPlayer(this);
 }
 
 unsigned long long LvPlayer::Encrypt(unsigned long long value)

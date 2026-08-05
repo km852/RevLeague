@@ -113,11 +113,6 @@ LvPacketProcessingResult LvClient::HandlePingLoadInfo(NvBinaryStreamRead& stream
 	bool isReady = (stream.Read<unsigned char>() & 1) != 0; // I suspect "isReady" was supposed to be a part of "extraInfo", but due to a League bug it ended up in a separate byte.
 
 	this->loadingProgress = LoadingProgress(percentageLoaded, eta, extraInfo, isReady);
-	if (!this->firstSelfLoadingPacketSent)
-	{
-		this->SendPacket(PCH_LowPriority, LvProtocol::CreatePingLoadInfo(this->GetPlayer()));
-		this->firstSelfLoadingPacketSent = true;
-	}
 
 	return PPR_SUCCESS;
 }
