@@ -36,7 +36,7 @@ namespace LvProtocol {
 	NvBinaryStreamWrite CreateStartSpawn();
 	NvBinaryStreamWrite CreateEndSpawn();
 	NvBinaryStreamWrite CreateStartGame();
-	NvBinaryStreamWrite CreateCreateHero();
+	NvBinaryStreamWrite CreateCreateHero(LvPlayer* player);
 }
 
 template<>

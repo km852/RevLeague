@@ -9,6 +9,12 @@ class LvMap : public NvNonCopyable {
 public:
 	LvMap(LvMapId mapId, const std::string& navGridFilePath);
 
+	void InitializeDefaultUnits();
+	void InitializePlayerHeroes();
+	void SendInitialUnitState(LvClient* client);
+
+	void AddObject(LvObjectBase* obj);
+
 	LvMapId GetId();
 };
 

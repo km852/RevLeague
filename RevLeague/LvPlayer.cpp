@@ -1,5 +1,7 @@
 #include "LvPlayer.h"
 #include "LvClient.h"
+#include "LvObjectHero.h"
+#include "LvObjectFactory.h"
 
 static int NextPlayerIndex = 0;
 static int NextBluePlayerIndex = 0;
@@ -11,16 +13,20 @@ LvPlayer::LvPlayer(LvGameSettings::PlayerInfo* playerInfo)
 
 	this->userId = playerInfo->playerId;
 	this->globalPlayerIndex = NextPlayerIndex++;
-	this->teamPlayerIndex = playerInfo->team == TT_BLUE ? NextBluePlayerIndex++ : NextRedPlayerIndex;
-	this->initialTeam = playerInfo->team;
-	this->currentTeam = this->initialTeam;
-	this->spawnPointIndex = 0;
+	this->teamPlayerIndex = playerInfo->team == TT_BLUE ? NextBluePlayerIndex++ : NextRedPlayerIndex++;
+	this->team = playerInfo->team;
 	this->skinIndex = 0;
 	this->profileIconId = 8;
 	this->playerName = playerInfo->playerName;
 	this->characterName = playerInfo->characterName;
 
 	LogDebug("> [{}] Player {}: {}", userId, globalPlayerIndex, playerName);
+}
+
+void LvPlayer::CreateHero()
+{
+	this->hero = LvObjectFactory().Position(Vector3(6000.f, 0.f, 6000.f)).Rotation(Vector3(0.0f, 0.0f, 1.0f)).ModelName(this->characterName).
+		Team(this->team).Name(this->playerName).CreateAndAdd<LvObjectHero>();
 }
 
 void LvPlayer::SetClient(LvClient* client)

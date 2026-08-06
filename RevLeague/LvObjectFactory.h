@@ -1,0 +1,42 @@
+#pragma once
+
+#include "LvTypes.h"
+#include "LvMap.h"
+
+#include <optional>
+
+class LvObjectFactory : public NvNonCopyable {
+	friend LvObjectBase;
+
+	std::optional<Vector3> position;
+	std::optional<Vector3> rotation;
+	std::optional<NetworkId> networkId;
+	std::optional<LvTeam> team;
+	std::optional<std::string> objName;
+	std::optional<std::string> charDataPreset;
+	std::optional<std::string> spellbookPreset;
+	std::optional<float> visionRadius = 0.f;
+
+public:
+	LvObjectFactory& Position(const Vector3& pos) { this->position = pos; return *this; }
+	LvObjectFactory& Rotation(const Vector3& rot) { this->rotation = rot; return *this; }
+	LvObjectFactory& ForcedNetworkId(NetworkId netId) { this->networkId = netId; return *this; }
+	LvObjectFactory& Team(LvTeam team_) { this->team = team_; return *this; }
+	LvObjectFactory& Name(const std::string& objectName) { this->objName = objectName; return *this; }
+	LvObjectFactory& CharData(const std::string& presetName) { this->charDataPreset = presetName; return *this; }
+	LvObjectFactory& VisionRadius(float radius) { this->visionRadius = radius; return *this; }
+	LvObjectFactory& Spellbook(const std::string& presetName) { this->spellbookPreset = presetName; return *this; }
+
+	// sets CharData and Spellbook at the same time
+	LvObjectFactory& ModelName(const std::string& presetName) { CharData(presetName); Spellbook(presetName); return *this; }
+
+	template <typename T>
+	T* CreateAndAdd()
+	{
+		T* obj = new T(*this);
+		obj->PostCreateInit();
+		lvMap->AddObject(obj);
+
+		return obj;
+	}
+};

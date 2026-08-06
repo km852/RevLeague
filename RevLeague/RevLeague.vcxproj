@@ -107,6 +107,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Assets\CharData.cpp" />
     <ClCompile Include="Dependencies\blowfish.cpp" />
     <ClCompile Include="Dependencies\enet\callbacks.c" />
     <ClCompile Include="Dependencies\enet\host.c" />
@@ -125,6 +126,8 @@
     <ClCompile Include="LvGame_Loading.cpp" />
     <ClCompile Include="LvMap.cpp" />
     <ClCompile Include="LvNetwork.cpp" />
+    <ClCompile Include="LvObjectBase.cpp" />
+    <ClCompile Include="LvObjectHero.cpp" />
     <ClCompile Include="LvPlayer.cpp" />
     <ClCompile Include="LvProtocol.cpp" />
     <ClCompile Include="LvServer.cpp" />
@@ -133,6 +136,7 @@
     <ClCompile Include="Scripts\Maps\MapSRScript.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assets\CharData.h" />
     <ClInclude Include="AutoVer.h" />
     <ClInclude Include="Dependencies\blowfish.h" />
     <ClInclude Include="Dependencies\enet\callbacks.h" />
@@ -152,6 +156,9 @@
     <ClInclude Include="LvGameClock.h" />
     <ClInclude Include="LvMap.h" />
     <ClInclude Include="LvNetwork.h" />
+    <ClInclude Include="LvObjectBase.h" />
+    <ClInclude Include="LvObjectFactory.h" />
+    <ClInclude Include="LvObjectHero.h" />
     <ClInclude Include="LvPlayer.h" />
     <ClInclude Include="LvProtocol.h" />
     <ClInclude Include="LvTypes.h" />

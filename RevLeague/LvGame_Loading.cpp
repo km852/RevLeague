@@ -31,8 +31,8 @@ void LvGame::GameUpdate_Loading()
 		}
 
 		bool shouldStartGame = true;
-		for (LvPlayer* player : this->GetConnectedPlayers())
-			shouldStartGame &= player->GetClient()->GetState() == CST_POST_LOADED;
+		for (LvPlayer* player : this->GetPlayers())
+			shouldStartGame &= player->GetClient() && player->GetClient()->GetState() == CST_POST_LOADED;
 
 		if (shouldStartGame || this->isGameplayRunning)
 		{

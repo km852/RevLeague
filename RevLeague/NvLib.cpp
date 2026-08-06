@@ -145,7 +145,6 @@ static int LogAssertInternal(const char* cond, const char* funcName, const char*
 {
 	NvAutoCriticalSection lock = logLock.Acquire();
 
-	LogMessageRaw("=============================================================================\n");
 	NvLogError("Assertion failed in {}{}{} [{}{}{}]", GetLogLevelAttribs(NvLogLevel::INTERNAL_FuncName), funcName, GetLogLevelAttribs(NvLogLevel::INTERNAL_Reset),
 		GetLogLevelAttribs(NvLogLevel::Warning), cond, GetLogLevelAttribs(NvLogLevel::INTERNAL_Reset));
 	NvLogError("Location: {}:{}", file, line);

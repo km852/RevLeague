@@ -3,6 +3,7 @@
 #include "LvGameClock.h"
 #include "LvClient.h"
 #include "LvPlayer.h"
+#include "LvMap.h"
 #include "LvNetwork.h"
 
 #include "Dependencies/enet/enet.h"
@@ -130,6 +131,9 @@ void LvGame::GameLoop()
 	int frameTimeMeasurements = 0;
 
 	LvGameTimer frameDebugTimer;
+
+	lvMap->InitializeDefaultUnits();
+	lvMap->InitializePlayerHeroes();
 
 	LogInfo("Game loop started");
 

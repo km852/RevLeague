@@ -2,6 +2,10 @@
 #include "LvPlayer.h"
 #include "LvMap.h"
 #include "LvGame.h"
+#include "LvObjectBase.h"
+#include "LvObjectHero.h"
+
+#include "Assets/CharData.h"
 
 NvBinaryStreamWrite LvProtocol::CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey)
 {
@@ -59,7 +63,7 @@ NvBinaryStreamWrite LvProtocol::CreateSynchVersionAnswer()
         writer.Write<int>(0); // summoner spell 1
         writer.Write<int>(0); // summoner spell 2
         writer.Write<unsigned char>(0); // is bot
-        writer.Write<unsigned int>(EnumToNetwork(player->GetInitialTeam()));
+        writer.Write<unsigned int>(EnumToNetwork(player->GetTeam()));
         writer.WriteRepeatByte(0, 64); // bot name
         writer.WriteRepeatByte(0, 64); // bot skin name
         writer.Write<int>(0); // bot difficulty
@@ -108,7 +112,7 @@ NvBinaryStreamWrite LvProtocol::CreateLoadingTeamRosterUpdate()
     int orderTeamSize = 0, chaosTeamSize = 0;
     for (LvPlayer* player : lvGame->GetPlayers())
     {
-        if (player->GetInitialTeam() == TT_BLUE)
+        if (player->GetTeam() == TT_BLUE)
         {
             writer.Write(player->GetUserId());
             ++orderTeamSize;
@@ -120,7 +124,7 @@ NvBinaryStreamWrite LvProtocol::CreateLoadingTeamRosterUpdate()
 
     for (LvPlayer* player : lvGame->GetPlayers())
     {
-        if (player->GetInitialTeam() == TT_RED)
+        if (player->GetTeam() == TT_RED)
         {
             writer.Write(player->GetUserId());
             ++chaosTeamSize;
@@ -142,12 +146,14 @@ NvBinaryStreamWrite LvProtocol::CreateLoadingSetSkin(LvPlayer* player)
 {
     NvBinaryStreamWrite writer(64);
 
+    std::string charName = player->GetHero()->GetCharData()->GetInGameName();
+
     writer.Write(PKT_Loading_SetSkin);
     writer.WriteRepeatByte(0, 7); // struct padding (useless)
     writer.Write<unsigned long long>(player->GetUserId());
     writer.Write<int>(player->GetSkinIndex());
-    writer.Write<int>((int)player->GetCharacterName().size() + 1);
-    writer.WritePaddedString(player->GetCharacterName(), player->GetCharacterName().size() + 1);
+    writer.Write<int>((int)charName.size() + 1);
+    writer.WritePaddedString(charName, charName.size() + 1);
 
     return writer;
 }
@@ -227,13 +233,28 @@ NvBinaryStreamWrite LvProtocol::CreateStartGame()
     return writer;
 }
 
-NvBinaryStreamWrite LvProtocol::CreateCreateHero()
+NvBinaryStreamWrite LvProtocol::CreateCreateHero(LvPlayer* player)
 {
     NvBinaryStreamWrite writer(256);
 
+    LvObjectHero* hero = player->GetHero();
+
     writer.Write(PKT_S2C_CreateHero);
     writer.Write<int>(0);
-    writer.Write<unsigned char>(0); // lowermost bit: is pause enabled
+    writer.Write<NetworkId>(hero->GetNetworkId());
+    writer.Write<int>(player->GetTeamPlayerIndex());
+    writer.Write<unsigned char>(0x40); // netNodeId - always 0x40
+    writer.Write<unsigned char>(0); // skillLevel ???
+    writer.Write<unsigned char>(hero->GetTeam() == TT_BLUE ? 1 : 0);
+    writer.Write<unsigned char>(0); // isBot
+    writer.Write<unsigned char>(0); // botRank
+    writer.Write<unsigned char>(player->GetTeamPlayerIndex()); // spawnPosIdx
+    writer.Write<int>(player->GetSkinIndex());
+    writer.WritePaddedString(hero->GetName(), 128);
+    writer.WritePaddedString(hero->GetCharData()->GetInGameName(), 40);
+    writer.Write<float>(0.0f); // deathDurationRemaining
+    writer.Write<float>(0.0f); // timeSinceDeath
+    writer.Write<unsigned int>(0); // flags (related to current death state)
 
     return writer;
 }

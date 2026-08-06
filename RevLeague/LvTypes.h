@@ -6,6 +6,7 @@
 #include <ranges>
 
 #include "Vector3.h"
+#include "NvLib.h"
 #include "Dependencies/json.hpp"
 
 // Platform sanity checks, we never expect any of the below to fail.
@@ -31,6 +32,21 @@ class LvClient;
 class LvMap;
 class IMapScript;
 class MapSRScript;
+class ICharacterScript;
+class LvObjectFactory;
+
+class LvObjectBase;
+class LvObjectHero;
+class LvObjectTurret;
+class LvObjectInhibitor;
+class LvObjectNexus;
+
+class LvStatsBase;
+class LvStatsHero;
+
+class CharData;
+
+typedef ICharacterScript* (*CreateCharacterScript_t)(LvObjectBase* object);
 
 enum LvTeam {
 	TT_NONE,

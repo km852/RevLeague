@@ -1,6 +1,7 @@
 #include "LvClient.h"
 #include "LvPlayer.h"
 #include "LvGame.h"
+#include "LvMap.h"
 #include "LvProtocol.h"
 
 LvClient::LvClient(ENetPeer* peer)
@@ -47,6 +48,7 @@ void LvClient::FinishLoading()
 		return;
 
 	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateStartSpawn());
+	lvMap->SendInitialUnitState(this);
 	this->SendPacket(PCH_ServerToClient, LvProtocol::CreateEndSpawn());
 
 	this->SetState(CST_POST_LOADED);

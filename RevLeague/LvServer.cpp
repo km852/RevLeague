@@ -7,6 +7,8 @@
 #include "AutoVer.h"
 #include "Dependencies/json.hpp"
 
+#include "Assets/CharData.h"
+
 #include <fstream>
 
 using json = nlohmann::json;
@@ -60,7 +62,7 @@ static bool InitializeAssets(const std::string& assetFilePath)
 	if (j.is_discarded())
 		return false;
 
-	//CharData::InitializeDatabaseJson(assetFile["Characters"]);
+	CharData::InitializeDatabaseJson(j["Characters"]);
 	//SpellData::InitializeDatabaseJson(assetFile["Spells"]);
 	//EffectData::InitializeDatabaseJson(assetFile["Effects"]);
 	//BuffData::InitializeDatabaseJson(assetFile["Buffs"]);

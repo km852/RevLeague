@@ -37,6 +37,7 @@ LvGameSettings::PlayerInfo::PlayerInfo(const nlohmann::json& obj)
 {
     this->playerId = obj.at("Id").get<unsigned long long>();
     this->playerName = obj.at("Name").get<std::string>();
+    this->characterName = obj.at("CharacterName").get<std::string>();
 
     std::string decodedKey = NvLib::NvUtils::Base64Decode(obj.at("NetEncryptionKey").get<std::string>());
     if (decodedKey.size() != 16)

@@ -40,6 +40,7 @@ class LvGame final : public NvNonCopyable {
 public:
 	unsigned long long GetGameId() const { return settings->gameId; }
 	bool IsGameplayRunning() const { return isGameplayRunning; }
+	NetworkId GetNextNetworkId() { return this->nextNetworkId++; }
 
 	void AddPacketToQueue(LvClient* targetClient, LvPacketChannel channelId, ENetPacket* packet);
 

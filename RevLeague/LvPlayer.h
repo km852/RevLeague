@@ -16,8 +16,7 @@ class LvPlayer : public NvNonCopyable {
 	int globalPlayerIndex;
 	int teamPlayerIndex;
 
-	LvTeam initialTeam;
-	LvTeam currentTeam;
+	LvTeam team;
 
 	int spawnPointIndex;
 	int skinIndex;
@@ -27,6 +26,7 @@ class LvPlayer : public NvNonCopyable {
 	std::string characterName;
 
 	LvClient* associatedClient = nullptr;
+	LvObjectHero* hero = nullptr;
 
 public:
 	LvPlayer(LvGameSettings::PlayerInfo* playerInfo);
@@ -34,11 +34,8 @@ public:
 	unsigned long long GetUserId() const { return userId; }
 	int GetPlayerIndex() const { return globalPlayerIndex; }
 	int GetTeamPlayerIndex() const { return teamPlayerIndex; }
+	LvTeam GetTeam() const { return team; }
 
-	LvTeam GetInitialTeam() const { return initialTeam; }
-	LvTeam GetCurrentTeam() const { return currentTeam; }
-
-	int GetSpawnPointIndex() const { return spawnPointIndex; }
 	int GetSkinIndex() const { return skinIndex; }
 	int GetProfileIconId() const { return profileIconId; }
 
@@ -46,6 +43,9 @@ public:
 	const std::string& GetCharacterName() const { return characterName; }
 
 	LvClient* GetClient() { return associatedClient; }
+	LvObjectHero* GetHero() { return hero; }
+
+	void CreateHero();
 
 	// DO NOT CALL THIS FUNCTION. This is reserved only for LvClient::SetPlayer. Use that instead.
 	void SetClient(LvClient* client);
