@@ -125,6 +125,7 @@
     <ClCompile Include="LvGame_Gameplay.cpp" />
     <ClCompile Include="LvGame_Loading.cpp" />
     <ClCompile Include="LvMap.cpp" />
+    <ClCompile Include="LvMesh.cpp" />
     <ClCompile Include="LvNetwork.cpp" />
     <ClCompile Include="LvObjectBase.cpp" />
     <ClCompile Include="LvObjectHero.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="LvGameSettings.h" />
     <ClInclude Include="LvGameClock.h" />
     <ClInclude Include="LvMap.h" />
+    <ClInclude Include="LvMesh.h" />
     <ClInclude Include="LvNetwork.h" />
     <ClInclude Include="LvObjectBase.h" />
     <ClInclude Include="LvObjectFactory.h" />

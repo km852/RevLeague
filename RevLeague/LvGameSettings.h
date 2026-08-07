@@ -15,6 +15,7 @@ struct LvGameSettings final : public NvNonCopyable {
 	};
 
 	std::string assetFilePath;
+	std::string meshFilePath;
 	unsigned int listenHost; // host-order IPv4 address
 	unsigned short listenPort; // host-order
 	unsigned long long gameId;

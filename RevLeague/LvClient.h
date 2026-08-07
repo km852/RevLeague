@@ -5,6 +5,8 @@
 
 #include "Dependencies/enet/enet.h"
 
+#include <unordered_set>
+
 class LvClient final : public NvNonCopyable {
 	struct LoadingProgress {
 		float percentageLoaded = 0.0f;
@@ -36,6 +38,8 @@ class LvClient final : public NvNonCopyable {
 	LvPlayer* associatedPlayer = nullptr;
 	LoadingProgress loadingProgress;
 
+	std::unordered_set<NetworkId> unitsSeenAtLeastOnce;
+
 public:
 	explicit LvClient(ENetPeer* peer);
 	~LvClient();
@@ -51,6 +55,9 @@ public:
 
 	LvPlayer* GetPlayer() const { return associatedPlayer; }
 	void SetPlayer(LvPlayer* player); // will also update the LvPlayer's association
+
+	inline void SetUnitSeen(NetworkId netId) { this->unitsSeenAtLeastOnce.insert(netId); }
+	inline bool HasSeenUnitPreviously(NetworkId netId) { return this->unitsSeenAtLeastOnce.find(netId) != this->unitsSeenAtLeastOnce.end(); }
 
 	void FinishLoading();
 

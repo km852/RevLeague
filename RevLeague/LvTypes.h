@@ -30,6 +30,8 @@ class LvGameTimer;
 class LvPlayer;
 class LvClient;
 class LvMap;
+class LvMeshCell;
+class LvMesh;
 class IMapScript;
 class MapSRScript;
 class ICharacterScript;
@@ -96,6 +98,11 @@ enum LvPacketProcessingResult {
 enum LvMapId {
 	MID_UNKNOWN = -1,
 	MID_SUMMONERS_RIFT = 1
+};
+
+enum LvMeshCellFlags : unsigned short {
+	MCF_GRASS = 1,
+	MCF_IMPASSABLE = 2,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(LvMapId,

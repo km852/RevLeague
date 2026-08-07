@@ -35,7 +35,7 @@ public:
 	{
 		T* obj = new T(*this);
 		obj->PostCreateInit();
-		lvMap->AddObject(obj);
+		lvMap->AddObject(std::unique_ptr<T>(obj)); // can't use make_unique here due to constructor visibility reasons
 
 		return obj;
 	}

@@ -3,8 +3,14 @@
 #include "NvLib.h"
 #include "LvTypes.h"
 
-class LvMap : public NvNonCopyable {
+class LvMap final : public NvNonCopyable {
 	std::unique_ptr<IMapScript> script;
+
+	std::vector<std::unique_ptr<LvObjectBase>> objects;
+	std::vector<LvObjectBase*> blueObjects;
+	std::vector<LvObjectBase*> redObjects;
+
+	std::unordered_map<NetworkId, LvObjectBase*> objectsLookup;
 
 public:
 	LvMap(LvMapId mapId, const std::string& navGridFilePath);
@@ -13,7 +19,7 @@ public:
 	void InitializePlayerHeroes();
 	void SendInitialUnitState(LvClient* client);
 
-	void AddObject(LvObjectBase* obj);
+	void AddObject(std::unique_ptr<LvObjectBase> obj);
 
 	LvMapId GetId();
 };

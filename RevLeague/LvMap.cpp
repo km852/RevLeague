@@ -1,6 +1,7 @@
 #include "LvMap.h"
 #include "LvGame.h"
 #include "LvProtocol.h"
+#include "LvObjectBase.h"
 
 #include "Scripts/Maps/MapSRScript.h"
 
@@ -38,9 +39,22 @@ void LvMap::SendInitialUnitState(LvClient* client)
 	}
 }
 
-void LvMap::AddObject(LvObjectBase* obj)
+void LvMap::AddObject(std::unique_ptr<LvObjectBase> obj)
 {
+	LvObjectBase* objRaw = obj.get();
 
+	if (!this->objectsLookup.insert(std::make_pair(objRaw->GetNetworkId(), objRaw)).second)
+	{
+		LogError("Cannot add object {} (duplicate NetworkId)", objRaw);
+		return;
+	}
+
+	this->objects.push_back(std::move(obj));
+
+	if (objRaw->GetTeam() == TT_BLUE)
+		this->blueObjects.push_back(objRaw);
+	else if (objRaw->GetTeam() == TT_RED)
+		this->redObjects.push_back(objRaw);
 }
 
 LvMapId LvMap::GetId()

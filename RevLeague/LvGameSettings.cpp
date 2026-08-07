@@ -24,6 +24,7 @@ static unsigned int IPv4ToInt(const std::string& s)
 LvGameSettings::LvGameSettings(const json& obj)
 {
     this->assetFilePath = obj.at("AssetFilePath").get<std::string>();
+    this->meshFilePath = obj.at("MeshFilePath").get<std::string>();
 	this->listenHost = IPv4ToInt(obj.value<std::string>("ListenHost", ""));
     this->listenPort = obj.value<unsigned short>("ListenPort", 6266);
     this->gameId = obj.at("GlobalGameId").get<unsigned long long>();

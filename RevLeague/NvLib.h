@@ -139,7 +139,7 @@ enum class NvStreamEndianness {
 
 class NvBinaryStreamRead final {
 private:
-	unsigned char* data = nullptr;
+	const unsigned char* data = nullptr;
 	size_t dataLength = 0;
 	size_t currentPos = 0;
 
@@ -177,7 +177,7 @@ public:
 	template <typename T>
 	T Read();
 
-	inline NvBinaryStreamRead(unsigned char* data_, size_t dataLength_) : data(data_), dataLength(dataLength_)
+	inline NvBinaryStreamRead(const unsigned char* data_, size_t dataLength_) : data(data_), dataLength(dataLength_)
 	{
 		if (dataLength_ > 0x7fffffffu)
 			throw NvStreamException(std::format("Too long NvBinaryStreamRead of length {}", 0x7fffffffu));

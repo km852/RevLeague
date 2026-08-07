@@ -4,6 +4,7 @@
 #include "LvGameClock.h"
 #include "LvTypes.h"
 #include "LvMap.h"
+#include "LvMesh.h"
 #include "AutoVer.h"
 #include "Dependencies/json.hpp"
 
@@ -22,29 +23,38 @@ static void PrintLogHeader()
 		timeFields->tm_hour, timeFields->tm_min, timeFields->tm_sec, GetCurrentProcessId());
 }
 
-static json LoadFileAsJson(const std::string& filePath)
+static std::optional<std::vector<unsigned char>> LoadFileRaw(const std::string& filePath)
 {
 	std::ifstream f(filePath, std::ios::binary);
 	if (!f)
 	{
 		LogError("Could not open file: {}", filePath);
-		return json::value_t::discarded;
+		return std::nullopt;
 	}
 
 	auto size = std::filesystem::file_size(filePath);
 	LogAssert(size < 1024 * 1024 * 256);
 
-	std::string result;
+	std::vector<unsigned char> result;
 	result.resize(size);
-	if (!f.read(&result[0], size))
+	if (!f.read((char*)&result[0], size))
 	{
 		LogError("Could not open file: {}", filePath);
-		return json::value_t::discarded;
+		return std::nullopt;
 	}
+
+	return result;
+}
+
+static json LoadFileAsJson(const std::string& filePath)
+{
+	auto fileDataRaw = LoadFileRaw(filePath);
+	if (!fileDataRaw.has_value())
+		return json::value_t::discarded;
 
 	try
 	{
-		return json::parse(result);
+		return json::parse((char*)fileDataRaw.value().data(), (char*)fileDataRaw.value().data() + fileDataRaw.value().size());
 	}
 	catch (const json::parse_error& e)
 	{
@@ -97,6 +107,9 @@ int LvServerStart(int argc, char* argv[])
 
 	lvNetwork = new LvNetwork(gameSettings->listenHost, gameSettings->listenPort);
 	lvNetwork->StartListen();
+
+	auto meshFileData = LoadFileRaw(gameSettings->meshFilePath).value_or({});
+	lvMesh = new LvMesh(meshFileData);
 
 	lvMap = new LvMap(gameSettings->mapId, "");
 
