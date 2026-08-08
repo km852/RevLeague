@@ -23,6 +23,7 @@ namespace LvProtocol {
 		PKT_S2C_EndSpawn = 0x11,
 		PKT_S2C_StartGame = 0x5C,
 		PKT_S2C_CreateHero = 0x4C,
+		PKT_AvatarInfo = 0x29,
 	};
 
 	NvBinaryStreamWrite CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey);
@@ -37,6 +38,7 @@ namespace LvProtocol {
 	NvBinaryStreamWrite CreateEndSpawn();
 	NvBinaryStreamWrite CreateStartGame();
 	NvBinaryStreamWrite CreateCreateHero(LvPlayer* player);
+	NvBinaryStreamWrite CreateAvatarInfo(LvPlayer* player);
 }
 
 template<>

@@ -258,3 +258,27 @@ NvBinaryStreamWrite LvProtocol::CreateCreateHero(LvPlayer* player)
 
     return writer;
 }
+
+NvBinaryStreamWrite LvProtocol::CreateAvatarInfo(LvPlayer* player)
+{
+    NvBinaryStreamWrite writer(512);
+
+    writer.Write(PKT_AvatarInfo);
+    writer.Write(player->GetHero()->GetNetworkId());
+
+    for (int i = 0; i < 30; ++i)
+        writer.Write<int>(0); // rune hash ?
+
+    writer.Write<int>(0); // summoner spell 1 hash
+    writer.Write<int>(0); // summoner spell 2 hash
+
+    for (int i = 0; i < 80; ++i)
+    {
+        writer.Write<int>(0); // mastery ID
+        writer.Write<char>(0); // mastery level
+    }
+
+    writer.Write<char>(30); // summoner level
+
+    return writer;
+}

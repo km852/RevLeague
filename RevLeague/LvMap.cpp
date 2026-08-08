@@ -7,6 +7,11 @@
 
 LvMap::LvMap(LvMapId mapId, const std::string& navGridFilePath)
 {
+	this->objects.reserve(1000);
+	this->blueObjects.reserve(1000);
+	this->redObjects.reserve(1000);
+	this->objectsLookup.reserve(1000);
+
 	switch (mapId)
 	{
 	case MID_SUMMONERS_RIFT:
@@ -36,6 +41,7 @@ void LvMap::SendInitialUnitState(LvClient* client)
 	for (LvPlayer* player : lvGame->GetPlayers())
 	{
 		client->SendPacket(PCH_ServerToClient, LvProtocol::CreateCreateHero(player));
+		client->SendPacket(PCH_ServerToClient, LvProtocol::CreateAvatarInfo(player));
 	}
 }
 
