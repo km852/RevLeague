@@ -43,6 +43,7 @@ class LvObjectTurret;
 class LvObjectInhibitor;
 class LvObjectNexus;
 
+class LvStatReplicator;
 class LvStatsBase;
 class LvStatsHero;
 
@@ -104,6 +105,46 @@ enum LvMeshCellFlags : unsigned short {
 	MCF_GRASS = 1,
 	MCF_IMPASSABLE = 2,
 };
+
+constexpr int MaxSpellLevel = 5;
+
+enum SpellSlot : unsigned char
+{
+	SpellQ = 0,
+	SpellW = 1,
+	SpellE = 2,
+	SpellR = 3,
+	SummonerSpell1 = 4,
+	SummonerSpell2 = 5,
+
+	Recall = 10,
+
+	ExtraSpell1 = 42,
+	ExtraSpell2 = 43,
+	ExtraSpell3 = 44,
+	ExtraSpell4 = 45,
+	ExtraSpell5 = 46,
+
+	MaxSpellSlotId = 64
+};
+
+// isAvatarSpellbook can be nullptr if value is not needed
+inline unsigned char SpellSlotToGameValue(SpellSlot slotId, bool* isAvatarSpellbook)
+{
+	if (isAvatarSpellbook)
+		*isAvatarSpellbook = slotId == SummonerSpell1 || slotId == SummonerSpell2;
+
+	if ((slotId >= SpellQ && slotId <= SpellR) || slotId == Recall)
+		return slotId;
+
+	if (slotId == SummonerSpell1 || slotId == SummonerSpell2)
+		return slotId - SummonerSpell1;
+
+	if (slotId >= MaxSpellSlotId) // basic attacks
+		return slotId;
+
+	return 0;
+}
 
 NLOHMANN_JSON_SERIALIZE_ENUM(LvMapId,
 {

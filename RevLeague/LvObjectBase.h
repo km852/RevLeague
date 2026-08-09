@@ -13,9 +13,12 @@ private:
 	Vector3 rotation;
 
 	CharData* charData;
+	std::unique_ptr<LvStatsBase> stats;
 
 protected:
 	LvObjectBase(const LvObjectFactory& builder, LvStatsBase* specifiedStats);
+
+	virtual void RecalculateStats_AssignBaseStats(LvStatsBase* clonedStats);
 
 public:
 	virtual ~LvObjectBase();
@@ -26,6 +29,14 @@ public:
 
 	const std::string& GetName() const { return objName; }
 	CharData* GetCharData() const { return charData; }
+
+	virtual LvStatsBase* GetStats() { return stats.get(); }
+	void RecalculateStats();
+
+	// test whether this unit can directly see another unit (this is expensive, prefer CanSee instead)
+	bool LineOfSightTest(LvObjectBase* target);
+	// test whether this unit has vision on another unit (can be indirect, e.g. target revealed by yet another unit)
+	virtual bool CanSee(LvObjectBase* target);
 };
 
 template <>

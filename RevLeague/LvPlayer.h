@@ -18,7 +18,6 @@ class LvPlayer : public NvNonCopyable {
 
 	LvTeam team;
 
-	int spawnPointIndex;
 	int skinIndex;
 	int profileIconId;
 

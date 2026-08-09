@@ -132,6 +132,8 @@
     <ClCompile Include="LvPlayer.cpp" />
     <ClCompile Include="LvProtocol.cpp" />
     <ClCompile Include="LvServer.cpp" />
+    <ClCompile Include="LvStatReplicator.cpp" />
+    <ClCompile Include="LvStatsBase.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="NvLib.cpp" />
     <ClCompile Include="Scripts\Maps\IMapScript.cpp" />
@@ -164,6 +166,9 @@
     <ClInclude Include="LvObjectHero.h" />
     <ClInclude Include="LvPlayer.h" />
     <ClInclude Include="LvProtocol.h" />
+    <ClInclude Include="LvStatReplicator.h" />
+    <ClInclude Include="LvStatsBase.h" />
+    <ClInclude Include="LvStatsHero.h" />
     <ClInclude Include="LvTypes.h" />
     <ClInclude Include="NvLib.h" />
     <ClInclude Include="Scripts\Maps\IMapScript.h" />
