@@ -242,13 +242,13 @@ NvBinaryStreamWrite LvProtocol::CreateCreateHero(LvPlayer* player)
     writer.Write(PKT_S2C_CreateHero);
     writer.Write<int>(0);
     writer.Write<NetworkId>(hero->GetNetworkId());
-    writer.Write<int>(player->GetTeamPlayerIndex());
+    writer.Write<int>(player->GetPlayerIndex());
     writer.Write<unsigned char>(0x40); // netNodeId - always 0x40
     writer.Write<unsigned char>(0); // skillLevel ???
     writer.Write<unsigned char>(hero->GetTeam() == TT_BLUE ? 1 : 0);
     writer.Write<unsigned char>(0); // isBot
     writer.Write<unsigned char>(0); // botRank
-    writer.Write<unsigned char>(player->GetTeamPlayerIndex()); // spawnPosIdx
+    writer.Write<unsigned char>(player->GetTeamPlayerIndex()); // spawnPosIdx (TODO: figure out if it's zero- or one-indexed)
     writer.Write<int>(player->GetSkinIndex());
     writer.WritePaddedString(hero->GetName(), 128);
     writer.WritePaddedString(hero->GetCharData()->GetInGameName(), 40);

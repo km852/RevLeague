@@ -4,6 +4,7 @@
 #include <string>
 #include <format>
 #include <vector>
+#include <numbers>
 #include <stdexcept>
 
 using namespace std::string_literals;
@@ -282,6 +283,8 @@ namespace NvLib {
 
 		std::string Base64Encode(const std::string& s, bool useUrlSafeCharacters);
 		std::string Base64Decode(const std::string& s);
+
+		inline float DegreesToRadians(float deg) { return (float)(deg * (std::numbers::pi / 180.0)); }
 	}
 }
 

@@ -2,5 +2,6 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
+  <Project Path="InibinReader/InibinReader.vcxproj" Id="69fe888d-f4f6-461b-a3a4-060b7b8dceda" />
   <Project Path="RevLeague/RevLeague.vcxproj" Id="332f6de8-295b-44be-b2db-d78b4c1418f7" />
 </Solution>

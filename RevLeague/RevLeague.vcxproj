@@ -134,6 +134,7 @@
     <ClCompile Include="LvServer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="NvLib.cpp" />
+    <ClCompile Include="Scripts\Maps\IMapScript.cpp" />
     <ClCompile Include="Scripts\Maps\MapSRScript.cpp" />
   </ItemGroup>
   <ItemGroup>
