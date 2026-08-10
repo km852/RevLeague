@@ -61,6 +61,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +91,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +121,7 @@
     <ClCompile Include="Dependencies\enet\win32.c" />
     <ClCompile Include="LvClientPackets.cpp" />
     <ClCompile Include="LvClient.cpp" />
+    <ClCompile Include="LvDebugInterface.cpp" />
     <ClCompile Include="LvGame.cpp" />
     <ClCompile Include="LvGameSettings.cpp" />
     <ClCompile Include="LvGameClock.cpp" />
@@ -155,6 +158,7 @@
     <ClInclude Include="Dependencies\json.hpp" />
     <ClInclude Include="Dependencies\json_fwd.hpp" />
     <ClInclude Include="LvClient.h" />
+    <ClInclude Include="LvDebugInterface.h" />
     <ClInclude Include="LvGame.h" />
     <ClInclude Include="LvGameSettings.h" />
     <ClInclude Include="LvGameClock.h" />

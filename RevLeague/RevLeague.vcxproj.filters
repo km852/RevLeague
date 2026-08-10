@@ -108,6 +108,9 @@
     <ClCompile Include="LvStatsBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LvDebugInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NvLib.h">
@@ -210,6 +213,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LvStatsHero.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LvDebugInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

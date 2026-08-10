@@ -3,6 +3,7 @@
 #include "LvGame.h"
 #include "LvGameClock.h"
 #include "LvTypes.h"
+#include "LvDebugInterface.h"
 #include "LvMap.h"
 #include "LvMesh.h"
 #include "AutoVer.h"
@@ -107,6 +108,8 @@ int LvServerStart(int argc, char* argv[])
 
 	lvNetwork = new LvNetwork(gameSettings->listenHost, gameSettings->listenPort);
 	lvNetwork->StartListen();
+
+	lvDebug = new LvDebugInterface();
 
 	auto meshFileData = LoadFileRaw(gameSettings->meshFilePath).value_or({});
 	lvMesh = new LvMesh(meshFileData);
