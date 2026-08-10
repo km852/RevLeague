@@ -15,7 +15,7 @@ static constexpr int NavHintGridSize = 900;
 
 struct NavHintGridNode
 {
-	float distances[NavHintGridSize];
+	float distances[NavHintGridSize] = { 0 };
 	NavGridCellLocator locator;
 };
 
@@ -44,10 +44,12 @@ public:
 	LvMeshCellFlags mFlags = (LvMeshCellFlags)0;
 	short mRefHintNode[2] = { 0 };
 
-	short X() { return mLocator.x; }
-	short Z() { return mLocator.z; }
+	short X() const { return mLocator.x; }
+	short Z() const { return mLocator.z; }
 
+	bool IsImpassable() const { return (mFlags & MCF_IMPASSABLE) != 0; }
 	bool IsWallOfGrass() const { return (mFlags & MCF_GRASS) != 0; }
+	bool IsFOWSeeThrough() const { return (mFlags & MCF_SEETHROUGH) != 0; }
 
 	void LoadFromFile(short x, short z, float centerHeight, LvMeshCellFlags flags, float refHintWeight, short refHint1, short refHint2)
 	{
@@ -87,12 +89,27 @@ private:
 
 	NavHintGrid hintGrid;
 
+	bool LineOfSightTestInner(const Vector3& startPos, const Vector3& endPos, float maxRayLength, short sourceGrassSectionId, short targetGrassSectionId);
 	void CalculateGrassSections();
 
 public:
 	explicit LvMesh(const std::vector<unsigned char>& meshData);
 
-	LvMeshCell* GetCell(NavGridCellLocator locator);
+	// does not set height at all
+	Vector3 GetPositionByCell(LvMeshCell* cell) const;
+
+	// Replaces flags for cells within radius
+	void SetFlagInRadius(float xPos, float zPos, float radius, LvMeshCellFlags newFlags);
+
+	// Returns the grass section ID, or -1 if not in grass
+	short IsWallOfGrass(float xPos, float zPos, float radius);
+
+	bool LineOfSightTest(const Vector3& startPos, const Vector3& endPos, float maxRayLength, short sourceGrassSectionId, short targetGrassSectionId);
+
+	LvMeshCell* GetCell(NavGridCellLocator locator) const;
+	LvMeshCell* GetCell(short cellX, short cellZ) const { return GetCell({ cellX, cellZ }); }
+
+	LvMeshCell* GetCellFromMapPosition(const Vector3& mapPos);
 };
 
 inline LvMesh* lvMesh;

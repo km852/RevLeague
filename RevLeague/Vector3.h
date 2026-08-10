@@ -12,9 +12,19 @@ struct Vector3 final
 
 	inline Vector3 operator+(const Vector3& rhs) const { return Vector3(X + rhs.X, Y + rhs.Y, Z + rhs.Z); }
 	inline Vector3 operator-(const Vector3& rhs) const { return Vector3(X - rhs.X, Y - rhs.Y, Z - rhs.Z); }
-	inline Vector3 operator*(float coeff) const { return Vector3(X * coeff, Y * coeff, Z * coeff); }
-	inline Vector3 operator/(float coeff) const { return Vector3(X / coeff, Y / coeff, Z / coeff); }
+	inline Vector3 operator*(float rhs) const { return Vector3(X * rhs, Y * rhs, Z * rhs); }
+	inline Vector3 operator/(float rhs) const { return Vector3(X / rhs, Y / rhs, Z / rhs); }
 	inline Vector3 operator-() const { return Vector3(-X, -Y, -Z); }
+
+	inline Vector3& operator+=(const Vector3& rhs) { X += rhs.X; Y += rhs.Y; Z += rhs.Z; return *this; }
+	inline Vector3& operator-=(const Vector3& rhs) { X -= rhs.X; Y -= rhs.Y; Z -= rhs.Z; return *this; }
+	inline Vector3& operator*=(const float rhs) { X *= rhs; Y *= rhs; Z *= rhs; return *this; }
+	inline Vector3& operator/=(const float rhs) { X /= rhs; Y /= rhs; Z /= rhs; return *this; }
+
+	inline double Length() const { return std::sqrt(SqrLength()); }
+	inline double SqrLength() const { return (double)X * X + (double)Y * Y + (double)Z * Z; }
+	inline double LengthXZ() const { return std::sqrt(SqrLengthXZ()); }
+	inline double SqrLengthXZ() const { return (double)X * X + (double)Z * Z; }
 
 	inline void RotateAroundY(float angleRad)
 	{
@@ -25,12 +35,47 @@ struct Vector3 final
 		Z = prevZ * cosAngle - prevX * sinAngle;
 	}
 
-	inline Vector3 RotatedAroundY(float angleRad)
+	[[nodiscard]] inline Vector3 RotatedAroundY(float angleRad) const
 	{
 		Vector3 retval = *this;
 		retval.RotateAroundY(angleRad);
 		return retval;
 	}
+
+	inline void Normalize()
+	{
+		float length = (float)this->Length();
+		if (length != 0.0)
+		{
+			X /= length;
+			Y /= length;
+			Z /= length;
+		}
+	}
+
+	[[nodiscard]] inline Vector3 Normalized() const
+	{
+		Vector3 retval = *this;
+		retval.Normalize();
+		return retval;
+	}
+
+	inline void NormalizeXZ()
+	{
+		Y = 0.0f;
+		Normalize();
+	}
+
+	[[nodiscard]] inline Vector3 NormalizedXZ()
+	{
+		Vector3 retval = *this;
+		retval.NormalizeXZ();
+		return retval;
+	}
+
+	Vector3 TrimToLength(float len) const;
+
+	inline static bool AlmostEqualXZ(const Vector3& v1, const Vector3& v2, float epsilon) { return std::abs(v1.X - v2.X) <= epsilon && std::abs(v1.Z - v2.Z) <= epsilon; }
 };
 
 template <>

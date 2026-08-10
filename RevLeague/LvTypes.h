@@ -58,6 +58,11 @@ enum LvTeam {
 	TT_NEUTRAL
 };
 
+enum LvObjectType {
+	OBJ_BASE,
+	OBJ_HERO
+};
+
 NLOHMANN_JSON_SERIALIZE_ENUM(LvTeam,
 {
 	{ TT_NONE, "TT_NONE" }, { TT_BLUE, "TT_BLUE" }, { TT_RED, "TT_RED" }, { TT_NEUTRAL, "TT_NEUTRAL" },
@@ -104,6 +109,7 @@ enum LvMapId {
 enum LvMeshCellFlags : unsigned short {
 	MCF_GRASS = 1,
 	MCF_IMPASSABLE = 2,
+	MCF_SEETHROUGH = 64
 };
 
 constexpr int MaxSpellLevel = 5;

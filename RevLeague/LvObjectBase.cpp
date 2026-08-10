@@ -1,17 +1,22 @@
 #include "LvObjectBase.h"
 #include "LvObjectFactory.h"
 #include "LvGame.h"
+#include "LvMap.h"
+#include "LvMesh.h"
 #include "LvStatsBase.h"
 
 #include "Assets/CharData.h"
 
 LvObjectBase::LvObjectBase(const LvObjectFactory& builder, LvStatsBase* specifiedStats)
 {
+	this->objectType = OBJ_BASE;
+
 	this->position = LogAssert(builder.position.has_value()) ? builder.position.value() : Vector3();
 	this->rotation = LogAssert(builder.rotation.has_value()) ? builder.rotation.value() : Vector3(0.0f, 0.0f, 1.0f);
 	this->team = LogAssert(builder.team.has_value()) ? builder.team.value() : TT_BLUE;
 	this->netId = builder.networkId.has_value() ? builder.networkId.value() : lvGame->GetNextNetworkId();
 	this->objName = builder.objName.has_value() ? builder.objName.value() : std::format("<{:08x}>", this->netId);
+	this->visionRange = builder.visionRadius.has_value() ? builder.visionRadius.value() : 500.f;
 
 	LogAssert(specifiedStats != nullptr);
 	this->stats = std::unique_ptr<LvStatsBase>(specifiedStats);
@@ -22,8 +27,14 @@ LvObjectBase::LvObjectBase(const LvObjectFactory& builder, LvStatsBase* specifie
 	{
 		LogError("[{}] Cannot find CharData \"{}\" - falling back to defaults", this, charDataName);
 
-		this->charData = CharData::GetCharData("_EmptyCharacter");
+		this->charData = CharData::GetCharData("_EmptyCharacter"s);
 		LogAssert(this->charData != nullptr || !"This will probably crash the server!!!");
+	}
+
+	if (this->charData)
+	{
+		this->gameplayCollisionRadius = this->charData->GetGameplayCollisionRadius();
+		this->selectionRadius = this->charData->GetSelectionRadius();
 	}
 }
 
@@ -69,10 +80,42 @@ void LvObjectBase::RecalculateStats()
 
 bool LvObjectBase::LineOfSightTest(LvObjectBase* target)
 {
-	return false;
+	if (target == this)
+		return true;
+
+	if (!this->IsWithinDistance(target, this->visionRange))
+		return false;
+
+	short grassSectionId = lvMesh->IsWallOfGrass(this->position.X, this->position.Z, this->selectionRadius);
+	short enemyGrassSectionId = lvMesh->IsWallOfGrass(target->position.X, target->position.Z, target->selectionRadius);
+
+	bool normalLoS = lvMesh->LineOfSightTest(this->position, target->position, this->visionRange, grassSectionId, enemyGrassSectionId);
+	bool inverseLoS = false;
+
+	// for champions, also test LoS coming from the enemy to our unit
+	// this is to avoid a situation where map geometry unluckily causes one champion to see an enemy, but not the other way around
+	if (!normalLoS && this->objectType == OBJ_HERO)
+	{
+		float smallerVisionRadius = std::min(this->visionRange, target->visionRange);
+		if (this->IsWithinDistance(target, smallerVisionRadius))
+		{
+			// the order of arguments grassSectionId and enemyGrassSectionId is correct here
+			inverseLoS = lvMesh->LineOfSightTest(target->position, this->position, smallerVisionRadius, grassSectionId, enemyGrassSectionId);
+		}
+	}
+
+	return normalLoS || inverseLoS;
 }
 
 bool LvObjectBase::CanSee(LvObjectBase* target)
 {
 	return false;
+}
+
+void LvObjectBase::Update(float dt)
+{
+}
+
+void LvObjectBase::UpdateMovement(float dt)
+{
 }

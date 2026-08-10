@@ -135,10 +135,201 @@ LvMesh::LvMesh(const std::vector<unsigned char>& meshData)
 	this->CalculateGrassSections();
 }
 
-LvMeshCell* LvMesh::GetCell(NavGridCellLocator locator)
+Vector3 LvMesh::GetPositionByCell(LvMeshCell* cell) const
+{
+	float x = (cell->X() * CellSize) + this->minBounds.X + (CellSize / 2.0f);
+	float z = (cell->Z() * CellSize) + this->minBounds.Z + (CellSize / 2.0f);
+
+	return Vector3(x, 0.0f, z);
+}
+
+void LvMesh::SetFlagInRadius(float xPos, float zPos, float radius, LvMeshCellFlags newFlags)
+{
+	LogAssert(radius >= 0.0f);
+
+	int x1 = (int)((xPos - this->minBounds.X - radius) / CellSize - 0.5f);
+	int x2 = (int)((xPos - this->minBounds.X + radius) / CellSize - 0.5f);
+	int z1 = (int)((zPos - this->minBounds.Z - radius) / CellSize + 0.5f);
+	int z2 = (int)((zPos - this->minBounds.Z + radius) / CellSize + 0.5f);
+
+	LogAssert(x2 - x1 < 100);
+	LogAssert(z2 - z1 < 100);
+
+	if (z1 > z2 || x1 > x2)
+		return;
+
+	float radiusSqr = radius * radius;
+	int itersRemaining = 1000;
+
+	for (int currZ = z1; currZ <= z2; ++currZ)
+	{
+		for (int currX = x1; currX <= x2; ++currX)
+		{
+			LvMeshCell* cell = this->GetCell((short)currX, (short)currZ);
+			if (cell)
+			{
+				Vector3 cellPos = this->GetPositionByCell(cell);
+				float dx = cellPos.X - xPos;
+				float dz = cellPos.Z - zPos;
+				if (dx * dx + dz * dz <= radiusSqr)
+					cell->mFlags = newFlags;
+			}
+
+			if (--itersRemaining < 0)
+			{
+				LogError("breaking out of an infinite loop");
+				LogError("invoked with pos=({:.4f}; {:.4f}) and radius={:.4f}", xPos, zPos, radius);
+
+				return;
+			}
+		}
+	}
+}
+
+short LvMesh::IsWallOfGrass(float xPos, float zPos, float radius)
+{
+	// this is mostly a copy of LvMesh::SetFlagInRadius
+	LogAssert(radius >= 0.0f);
+
+	if (radius < 35.0f)
+	{
+		LvMeshCell* cell = this->GetCellFromMapPosition(Vector3(xPos, 0.f, zPos));
+		return (cell && cell->IsWallOfGrass()) ? cell->mGrassSectionId : -1;
+	}
+
+	radius = std::min(500.f, radius);
+
+	int x1 = (int)((xPos - this->minBounds.X - radius) / CellSize - 0.5f);
+	int x2 = (int)((xPos - this->minBounds.X + radius) / CellSize - 0.5f);
+	int z1 = (int)((zPos - this->minBounds.Z - radius) / CellSize + 0.5f);
+	int z2 = (int)((zPos - this->minBounds.Z + radius) / CellSize + 0.5f);
+
+	LogAssert(x2 - x1 < 100);
+	LogAssert(z2 - z1 < 100);
+
+	if (z1 > z2 || x1 > x2)
+		return -1;
+
+	float radiusSqr = radius * radius;
+	int itersRemaining = 1000;
+
+	int totalCells = 0, grassCells = 0;
+	short lastGrassSectionId = -1;
+
+	for (int currZ = z1; currZ <= z2; ++currZ)
+	{
+		for (int currX = x1; currX <= x2; ++currX)
+		{
+			LvMeshCell* cell = this->GetCell((short)currX, (short)currZ);
+			if (cell)
+			{
+				Vector3 cellPos = this->GetPositionByCell(cell);
+				float dx = cellPos.X - xPos;
+				float dz = cellPos.Z - zPos;
+				if (dx * dx + dz * dz <= radiusSqr)
+				{
+					if (!cell->IsImpassable())
+						++totalCells;
+
+					if (cell->IsWallOfGrass())
+					{
+						++grassCells;
+						lastGrassSectionId = cell->mGrassSectionId;
+					}
+				}
+			}
+
+			if (--itersRemaining < 0)
+			{
+				LogError("breaking out of an infinite loop");
+				LogError("invoked with pos=({:.4f}; {:.4f}) and radius={:.4f}", xPos, zPos, radius);
+
+				return -1;
+			}
+		}
+	}
+
+	return (grassCells > 0 && grassCells >= (int)(totalCells * 0.4f)) ? lastGrassSectionId : -1;
+}
+
+bool LvMesh::LineOfSightTestInner(const Vector3& startPos, const Vector3& endPos, float maxRayLength, short sourceGrassSectionId, short targetGrassSectionId)
+{
+	if (Vector3::AlmostEqualXZ(startPos, endPos, 0.1f))
+		return true;
+
+	float distanceRemaining = (float)((endPos - startPos).LengthXZ() + 1.0);
+	if (distanceRemaining > maxRayLength)
+		return false;
+
+	// source and target are in different grass sections
+	if (targetGrassSectionId != -1 && sourceGrassSectionId != targetGrassSectionId)
+		return false;
+
+	constexpr float Accuracy = 8.0f;
+	constexpr float MovementAmount = CellSize / Accuracy;
+
+	Vector3 currPos = startPos;
+	Vector3 moveInterval = (endPos - startPos).NormalizedXZ() * MovementAmount;
+
+	int maxIterations = 5000;
+
+	for (;;)
+	{
+		if (--maxIterations <= 0)
+		{
+			LogError("breaking out of an infinite loop");
+			LogError("invoked with startPos=({}) endPos=({})", startPos, endPos);
+
+			return false;
+		}
+
+		LvMeshCell* cell = this->GetCellFromMapPosition(currPos);
+		if (!cell)
+			return false;
+
+		if (cell->IsImpassable() && !cell->IsFOWSeeThrough())
+			return false;
+
+		if (cell->IsWallOfGrass() && sourceGrassSectionId != cell->mGrassSectionId)
+			return false;
+
+		currPos += moveInterval;
+		distanceRemaining -= MovementAmount;
+
+		if (distanceRemaining < 0.0f)
+			return true;
+	}
+
+	return true;
+}
+
+bool LvMesh::LineOfSightTest(const Vector3& startPos, const Vector3& endPos, float maxRayLength, short sourceGrassSectionId, short targetGrassSectionId)
+{
+	// TODO: generate equidistant points around EndPos and fire multiple rays towards there
+	return this->LineOfSightTestInner(startPos, endPos, maxRayLength, sourceGrassSectionId, targetGrassSectionId);
+}
+
+LvMeshCell* LvMesh::GetCell(NavGridCellLocator locator) const
 {
 	if (locator.x < 0 || locator.z < 0 || locator.x >= cellCountX || locator.z >= cellCountZ)
 		return nullptr;
 
 	return &this->cells[locator.z * cellCountX + locator.x];
+}
+
+LvMeshCell* LvMesh::GetCellFromMapPosition(const Vector3& mapPos)
+{
+	float x = mapPos.X - this->minBounds.X;
+	float z = mapPos.Z - this->minBounds.Z;
+
+	if (x < 0.0f || z < 0.0f)
+		return nullptr;
+
+	int cellIndexX = static_cast<int>(x / CellSize);
+	int cellIndexZ = static_cast<int>(z / CellSize);
+
+	if (cellIndexX < 0 || cellIndexZ < 0 || cellIndexX >= cellCountX || cellIndexZ >= cellCountZ)
+		return nullptr;
+
+	return &this->cells[cellIndexZ * cellCountX + cellIndexX];
 }
