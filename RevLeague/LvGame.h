@@ -24,6 +24,8 @@ class LvGame final : public NvNonCopyable {
 	bool processingNetEvents = false; // if SendPacket is called while processingNetEvents == true, raise a warning. Normally you shouldn't send packets directly in packet handlers
 	bool isGameplayRunning = false;
 
+	double nextWorldUpdate = 0.0;
+
 	std::vector<std::unique_ptr<LvPlayer>> players;
 	std::vector<LvClient*> clients; // no unique_ptr here because ENetPeer::data owns the client, and it gets managed manually
 	std::vector<PendingPacket> pendingPackets;

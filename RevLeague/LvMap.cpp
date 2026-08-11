@@ -63,6 +63,14 @@ void LvMap::AddObject(std::unique_ptr<LvObjectBase> obj)
 		this->redObjects.push_back(objRaw);
 }
 
+void LvMap::Update(double dt)
+{
+	this->script->Update();
+
+	for (const auto& obj : this->objects)
+		obj->Update(dt);
+}
+
 LvMapId LvMap::GetId()
 {
 	return this->script->GetId();

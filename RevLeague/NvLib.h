@@ -210,31 +210,32 @@ public:
 
 	inline const std::vector<unsigned char>& GetUnderlyingBuffer() const { return buffer; }
 
-	void WriteRepeatByte(unsigned char byte, size_t len);
-	void WriteBytes(const void* buf, size_t len);
+	void WriteRepeatByte(unsigned char byte, size_t len) { buffer.insert(buffer.end(), len, byte); }
+	void WriteBytes(const void* buf, size_t len) { buffer.insert(buffer.end(), (const unsigned char*)buf, (const unsigned char*)buf + len); }
+	void WriteBytes(const std::vector<unsigned char>& vec) { WriteBytes(vec.data(), vec.size()); }
 	void WriteBytesEndianAware(const void* buf, size_t len);
 	
 	void WritePaddedString(const std::string& s, size_t maxLength);
 	void WriteVarInt64(unsigned long long val);
 
 	template <typename T>
-	void Write(T val);
+	void Write(const T& val);
 
 	inline NvBinaryStreamWrite() {}
 	inline NvBinaryStreamWrite(size_t reservedBytes) : buffer() { this->buffer.reserve(reservedBytes); }
 };
 
-template<> inline void NvBinaryStreamWrite::Write(char val) { return WriteBytesEndianAware(&val, sizeof(char)); }
-template<> inline void NvBinaryStreamWrite::Write(unsigned char val) { return WriteBytesEndianAware(&val, sizeof(unsigned char)); }
-template<> inline void NvBinaryStreamWrite::Write(short val) { return WriteBytesEndianAware(&val, sizeof(short)); }
-template<> inline void NvBinaryStreamWrite::Write(unsigned short val) { return WriteBytesEndianAware(&val, sizeof(unsigned short)); }
-template<> inline void NvBinaryStreamWrite::Write(int val) { return WriteBytesEndianAware(&val, sizeof(int)); }
-template<> inline void NvBinaryStreamWrite::Write(unsigned int val) { return WriteBytesEndianAware(&val, sizeof(unsigned int)); }
-template<> inline void NvBinaryStreamWrite::Write(float val) { return WriteBytesEndianAware(&val, sizeof(float)); }
-template<> inline void NvBinaryStreamWrite::Write(double val) { return WriteBytesEndianAware(&val, sizeof(double)); }
-template<> inline void NvBinaryStreamWrite::Write(long long val) { return WriteBytesEndianAware(&val, sizeof(long long)); }
-template<> inline void NvBinaryStreamWrite::Write(unsigned long long val) { return WriteBytesEndianAware(&val, sizeof(unsigned long long)); }
-template<> void NvBinaryStreamWrite::Write(std::string& val);
+template<> inline void NvBinaryStreamWrite::Write(const char& val) { return WriteBytesEndianAware(&val, sizeof(char)); }
+template<> inline void NvBinaryStreamWrite::Write(const unsigned char& val) { return WriteBytesEndianAware(&val, sizeof(unsigned char)); }
+template<> inline void NvBinaryStreamWrite::Write(const short& val) { return WriteBytesEndianAware(&val, sizeof(short)); }
+template<> inline void NvBinaryStreamWrite::Write(const unsigned short& val) { return WriteBytesEndianAware(&val, sizeof(unsigned short)); }
+template<> inline void NvBinaryStreamWrite::Write(const int& val) { return WriteBytesEndianAware(&val, sizeof(int)); }
+template<> inline void NvBinaryStreamWrite::Write(const unsigned int& val) { return WriteBytesEndianAware(&val, sizeof(unsigned int)); }
+template<> inline void NvBinaryStreamWrite::Write(const float& val) { return WriteBytesEndianAware(&val, sizeof(float)); }
+template<> inline void NvBinaryStreamWrite::Write(const double& val) { return WriteBytesEndianAware(&val, sizeof(double)); }
+template<> inline void NvBinaryStreamWrite::Write(const long long& val) { return WriteBytesEndianAware(&val, sizeof(long long)); }
+template<> inline void NvBinaryStreamWrite::Write(const unsigned long long& val) { return WriteBytesEndianAware(&val, sizeof(unsigned long long)); }
+template<> inline void NvBinaryStreamWrite::Write(const std::string& val) {	WriteVarInt64(val.size()); WriteBytes(val.data(), val.size()); }
 
 // ====================================================== Logger ======================================================
 

@@ -21,6 +21,8 @@ public:
 
 	void AddObject(std::unique_ptr<LvObjectBase> obj);
 
+	void Update(double dt);
+
 	LvMapId GetId();
 };
 

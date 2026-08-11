@@ -54,6 +54,10 @@ void LvClient::FinishLoading()
 	this->SetState(CST_POST_LOADED);
 }
 
+void LvClient::UpdateClock()
+{
+}
+
 void LvClient::SendPacket(LvPacketChannel channelId, ENetPacket* packet, bool encryptPacket)
 {
 	LogAssert(channelId != PCH_ClientToServer); // did you perhaps mean ServerToClient?

@@ -158,6 +158,7 @@
     <ClInclude Include="Dependencies\json.hpp" />
     <ClInclude Include="Dependencies\json_fwd.hpp" />
     <ClInclude Include="LvClient.h" />
+    <ClInclude Include="LvClientVisionInfo.h" />
     <ClInclude Include="LvDebugInterface.h" />
     <ClInclude Include="LvGame.h" />
     <ClInclude Include="LvGameSettings.h" />

@@ -4,6 +4,7 @@
 #include "NvLib.h"
 
 class LvObjectBase : public NvNonCopyable {
+	friend LvDebugInterface;
 private:
 	std::string objName;
 	NetworkId netId;
@@ -22,6 +23,9 @@ private:
 	float selectionRadius = 1.0f; // grass acquisition radius
 	float pathfindingRadius;
 
+	bool orderVisionGranted = false;
+	bool chaosVisionGranted = false;
+
 protected:
 	LvObjectBase(const LvObjectFactory& builder, LvStatsBase* specifiedStats);
 
@@ -31,11 +35,17 @@ public:
 	virtual ~LvObjectBase();
 	void PostCreateInit();
 
+	Vector3 GetPosition() const { return position; }
+	Vector3 GetRotation() const { return rotation; }
 	NetworkId GetNetworkId() const { return netId; }
 	LvTeam GetTeam() const { return team; }
 
 	const std::string& GetName() const { return objName; }
 	CharData* GetCharData() const { return charData; }
+
+	float GetPathfindingRadius() const { return pathfindingRadius; }
+	float GetGameplayCollisionRadius() const { return gameplayCollisionRadius; }
+	float GetSelectionRadius() const { return selectionRadius; }
 
 	virtual LvStatsBase* GetStats() { return stats.get(); }
 	void RecalculateStats();
@@ -47,13 +57,20 @@ public:
 	bool IsWithinDistance(const Vector3& other, double distance) const { return GetDistanceSqr(other) <= (distance * distance); }
 	bool IsWithinDistance(LvObjectBase* other, double distance) const { return IsWithinDistance(other->position, distance); }
 
+	// can team X see this unit? (use CanSee instead of this function to check visibility)
+	bool IsTeamVisionGranted(LvTeam team) const { return team == TT_BLUE ? orderVisionGranted : (team == TT_RED ? chaosVisionGranted : true); }
+	void SetTeamVisionGranted(LvTeam team, bool isVisible) { if (team == TT_BLUE) orderVisionGranted = isVisible; else if (team == TT_RED) chaosVisionGranted = isVisible; }
+
+	virtual std::vector<NvBinaryStreamWrite> CreateEnterVisibilityPackets(LvClient* seeingClient);
+	virtual void WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* seeingClient);
+
 	// test whether this unit can directly see another unit (this is expensive, prefer CanSee instead)
 	bool LineOfSightTest(LvObjectBase* target);
 	// test whether this unit has vision on another unit (can be indirect, e.g. target revealed by yet another unit)
 	virtual bool CanSee(LvObjectBase* target);
 
-	virtual void Update(float dt);
-	virtual void UpdateMovement(float dt);
+	virtual void Update(double dt);
+	virtual void UpdateMovement(double dt);
 };
 
 template <>

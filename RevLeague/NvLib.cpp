@@ -258,16 +258,6 @@ unsigned long long NvBinaryStreamRead::ReadVarInt64()
 	throw NvStreamException("VarInt64 read exceeded byte limit!");
 }
 
-void NvBinaryStreamWrite::WriteRepeatByte(unsigned char byte, size_t len)
-{
-	this->buffer.insert(this->buffer.end(), len, byte);
-}
-
-void NvBinaryStreamWrite::WriteBytes(const void* buf, size_t len)
-{
-	this->buffer.insert(this->buffer.end(), (unsigned char*)buf, (unsigned char*)buf + len);
-}
-
 void NvBinaryStreamWrite::WriteBytesEndianAware(const void* buf, size_t len)
 {
 	this->WriteBytes(buf, len);
@@ -301,12 +291,6 @@ void NvBinaryStreamWrite::WriteVarInt64(unsigned long long val)
 
 		this->buffer.push_back(thisByte);
 	} while (val);
-}
-
-template<> void NvBinaryStreamWrite::Write(std::string& val)
-{
-	this->WriteVarInt64(val.size());
-	this->WriteBytes(val.data(), val.size());
 }
 
 std::wstring NvLib::NvUtils::UTF8ToWide(const std::string& s)

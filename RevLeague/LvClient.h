@@ -2,6 +2,7 @@
 
 #include "NvLib.h"
 #include "LvTypes.h"
+#include "LvClientVisionInfo.h"
 
 #include "Dependencies/enet/enet.h"
 
@@ -38,7 +39,7 @@ class LvClient final : public NvNonCopyable {
 	LvPlayer* associatedPlayer = nullptr;
 	LoadingProgress loadingProgress;
 
-	std::unordered_set<NetworkId> unitsSeenAtLeastOnce;
+	std::unordered_map<NetworkId, LvClientVisionInfo> unitVisionInfo;
 
 public:
 	explicit LvClient(ENetPeer* peer);
@@ -56,10 +57,12 @@ public:
 	LvPlayer* GetPlayer() const { return associatedPlayer; }
 	void SetPlayer(LvPlayer* player); // will also update the LvPlayer's association
 
-	inline void SetUnitSeen(NetworkId netId) { this->unitsSeenAtLeastOnce.insert(netId); }
-	inline bool HasSeenUnitPreviously(NetworkId netId) { return this->unitsSeenAtLeastOnce.find(netId) != this->unitsSeenAtLeastOnce.end(); }
+	inline bool HasSeenUnitPreviously(NetworkId netId) { return this->unitVisionInfo.find(netId) != this->unitVisionInfo.end(); }
+	//inline void UnitEnteredVision(NetworkId netId) { this->unitsSeenAtLeastOnce.insert(netId); }
+	//inline void UnitLeftVision(NetworkId netId) { this->unitsSeenAtLeastOnce.insert(netId); }
 
 	void FinishLoading();
+	void UpdateClock();
 
 	void SendPacket(LvPacketChannel channelId, ENetPacket* packet, bool encryptPacket = true);
 	void SendPacket(LvPacketChannel channelId, const NvBinaryStreamWrite& packet, unsigned int enetFlags = ENET_PACKET_FLAG_RELIABLE, bool encryptPacket = true);

@@ -29,9 +29,11 @@ class LvGameClock;
 class LvGameTimer;
 class LvPlayer;
 class LvClient;
+class LvClientVisionInfo;
 class LvMap;
 class LvMeshCell;
 class LvMesh;
+class LvDebugInterface;
 class IMapScript;
 class MapSRScript;
 class ICharacterScript;
@@ -52,11 +54,13 @@ class CharData;
 typedef ICharacterScript* (*CreateCharacterScript_t)(LvObjectBase* object);
 
 enum LvTeam {
-	TT_NONE,
-	TT_BLUE,
-	TT_RED,
-	TT_NEUTRAL
+	TT_NONE = 0,
+	TT_BLUE = 100,
+	TT_RED = 200,
+	TT_NEUTRAL = 300
 };
+
+template<> inline void NvBinaryStreamWrite::Write(const LvTeam& val) { Write<int>(val); }
 
 enum LvObjectType {
 	OBJ_BASE,
@@ -156,18 +160,3 @@ NLOHMANN_JSON_SERIALIZE_ENUM(LvMapId,
 {
 	{ MID_UNKNOWN, "UNKNOWN" }, { MID_SUMMONERS_RIFT, "SUMMONERS_RIFT" },
 });
-
-inline int EnumToNetwork(LvTeam team)
-{
-	switch (team)
-	{
-	case TT_BLUE:
-		return 100;
-	case TT_RED:
-		return 200;
-	case TT_NEUTRAL:
-		return 300;
-	}
-
-	return 0;
-}

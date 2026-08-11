@@ -1,4 +1,6 @@
 #include "LvDebugInterface.h"
+#include "LvObjectBase.h"
+#include "LvStatsBase.h"
 
 constexpr const char* DebugPipeName = "\\\\.\\pipe\\RevLeaguePipe";
 
@@ -16,10 +18,11 @@ void LvDebugInterface::PushData(const std::vector<unsigned char>& data)
 
 inline DWORD CALLBACK LvDebugInterface::PipeHandler(LPVOID lpParameter)
 {
-	NvAutoWin32Handle pipe = ((PipeHandlerThreadArgs*)lpParameter)->hPipe;
+	NvAutoWin32Handle pipe = ((PipeHandlerThreadArgs*)lpParameter)->hPipe; // re-acquire handle as RAII-managed handle
 	LvDebugInterface* iface = ((PipeHandlerThreadArgs*)lpParameter)->iface;
 
 	SetEvent(((PipeHandlerThreadArgs*)lpParameter)->hContinueEvent); // lpParameter becomes invalid after this call
+	iface->isConnected = true;
 
 	DWORD writtenBytes = 0;
 
@@ -39,6 +42,8 @@ inline DWORD CALLBACK LvDebugInterface::PipeHandler(LPVOID lpParameter)
 				if (GetLastError() == ERROR_NO_DATA || GetLastError() == ERROR_BROKEN_PIPE)
 				{
 					LogWarning("Debug pipe has been closed");
+					iface->isConnected = false;
+
 					return 0;
 				}
 
@@ -93,7 +98,7 @@ inline DWORD CALLBACK LvDebugInterface::AcceptPipeConnections(LPVOID lpParameter
 
 			PipeHandlerThreadArgs threadArgs;
 			threadArgs.hContinueEvent = continueEvent.Get();
-			threadArgs.hPipe = pipe.Abandon();
+			threadArgs.hPipe = pipe.Abandon(); // will be re-acquired in the pipe thread
 			threadArgs.iface = iface;
 
 			iface->currentPipeHandlerThread = CreateThread(nullptr, 0, PipeHandler, &threadArgs, 0, nullptr);
@@ -102,6 +107,29 @@ inline DWORD CALLBACK LvDebugInterface::AcceptPipeConnections(LPVOID lpParameter
 			LogAssert(WaitForSingleObject(continueEvent.Get(), 5000) == WAIT_OBJECT_0);
 		}
 	}
+}
+
+void LvDebugInterface::OnObjectUpdate(LvObjectBase* object)
+{
+	if (!this->isConnected)
+		return;
+
+	NvBinaryStreamWrite stream;
+	stream.Write(DBG_TYPE_OBJECT_INFO);
+	stream.Write(object->GetPosition());
+	stream.Write(object->GetRotation());
+	stream.Write(object->GetNetworkId());
+	stream.Write(object->GetTeam());
+	stream.Write(object->GetStats()->GetHealth());
+	stream.Write(object->GetStats()->GetMaxHealth().GetTotalValue());
+	stream.Write(object->GetStats()->GetResource());
+	stream.Write(object->GetStats()->GetMaxResource().GetTotalValue());
+	stream.Write(object->GetStats()->GetMovementSpeed().GetTotalValue());
+	stream.Write(object->GetPathfindingRadius());
+	stream.Write(object->GetGameplayCollisionRadius());
+	stream.Write(object->GetSelectionRadius());
+
+	this->PushData(stream.GetUnderlyingBuffer());
 }
 
 LvDebugInterface::LvDebugInterface()

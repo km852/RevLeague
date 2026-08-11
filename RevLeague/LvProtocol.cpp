@@ -63,7 +63,7 @@ NvBinaryStreamWrite LvProtocol::CreateSynchVersionAnswer()
         writer.Write<int>(0); // summoner spell 1
         writer.Write<int>(0); // summoner spell 2
         writer.Write<unsigned char>(0); // is bot
-        writer.Write<unsigned int>(EnumToNetwork(player->GetTeam()));
+        writer.Write(player->GetTeam());
         writer.WriteRepeatByte(0, 64); // bot name
         writer.WriteRepeatByte(0, 64); // bot skin name
         writer.Write<int>(0); // bot difficulty
@@ -279,6 +279,31 @@ NvBinaryStreamWrite LvProtocol::CreateAvatarInfo(LvPlayer* player)
     }
 
     writer.Write<char>(30); // summoner level
+
+    return writer;
+}
+
+NvBinaryStreamWrite LvProtocol::CreateEnterVisibility(LvObjectBase* obj, LvClient* enteringVision)
+{
+    std::vector<NvBinaryStreamWrite> spawnPackets = obj->CreateEnterVisibilityPackets(enteringVision);
+    size_t spawnPacketsTotalLen = 0;
+    for (const NvBinaryStreamWrite& pkt : spawnPackets)
+        spawnPacketsTotalLen += pkt.GetUnderlyingBuffer().size() + 2; // 2 bytes for each packet length prefix
+
+    LogAssert(spawnPacketsTotalLen <= 32700);
+
+    NvBinaryStreamWrite writer;
+
+    writer.Write(PKT_OnEnterVisiblityClient);
+    writer.Write(obj->GetNetworkId());
+    writer.Write<short>((short)spawnPacketsTotalLen);
+    for (const NvBinaryStreamWrite& pkt : spawnPackets)
+    {
+        writer.Write<short>((short)pkt.GetUnderlyingBuffer().size());
+        writer.WriteBytes(pkt.GetUnderlyingBuffer());
+    }
+
+    obj->WriteEnterVisibilityPacketSuffix(writer, enteringVision);
 
     return writer;
 }

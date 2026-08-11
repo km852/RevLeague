@@ -3,6 +3,8 @@
 #include <format>
 #include <cmath>
 
+#include "NvLib.h"
+
 struct Vector3 final
 {
 	float X, Y, Z;
@@ -82,3 +84,5 @@ template <>
 struct std::formatter<Vector3> : std::formatter<std::string> {
 	auto format(const Vector3& v, format_context& ctx) const { return formatter<string>::format(std::format("{:.3f}; {:.3f}; {:.3f}", v.X, v.Y, v.Z), ctx); }
 };
+
+template<> inline void NvBinaryStreamWrite::Write(const Vector3& val) { Write<float>(val.X); Write<float>(val.Y); Write<float>(val.Z); }

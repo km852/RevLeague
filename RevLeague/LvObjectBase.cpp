@@ -3,6 +3,7 @@
 #include "LvGame.h"
 #include "LvMap.h"
 #include "LvMesh.h"
+#include "LvDebugInterface.h"
 #include "LvStatsBase.h"
 
 #include "Assets/CharData.h"
@@ -78,6 +79,19 @@ void LvObjectBase::RecalculateStats()
 	this->stats->ApplyUpdatedStats(statsCopy.get());
 }
 
+std::vector<NvBinaryStreamWrite> LvObjectBase::CreateEnterVisibilityPackets(LvClient* seeingClient)
+{
+	return {};
+}
+
+void LvObjectBase::WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* seeingClient)
+{
+	visPacket.Write<char>(0); // inventory info
+	visPacket.Write<char>(0); // shield info (if 1, then three floats follow)
+	visPacket.Write<float>(0); // some unknown float (movement speed override?)
+	visPacket.Write<char>(0); // waypoint list
+}
+
 bool LvObjectBase::LineOfSightTest(LvObjectBase* target)
 {
 	if (target == this)
@@ -112,10 +126,11 @@ bool LvObjectBase::CanSee(LvObjectBase* target)
 	return false;
 }
 
-void LvObjectBase::Update(float dt)
+void LvObjectBase::Update(double dt)
 {
+	lvDebug->OnObjectUpdate(this);
 }
 
-void LvObjectBase::UpdateMovement(float dt)
+void LvObjectBase::UpdateMovement(double dt)
 {
 }

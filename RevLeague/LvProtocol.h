@@ -24,6 +24,8 @@ namespace LvProtocol {
 		PKT_S2C_StartGame = 0x5C,
 		PKT_S2C_CreateHero = 0x4C,
 		PKT_AvatarInfo = 0x29,
+		PKT_OnEnterVisiblityClient = 0xBA, // "visibility" = unit entering vision from fog of war (or spawning in visible region)
+		PKT_OnEnterLocalVisiblityClient = 0xAE, // "local visibility" = within bounds of camera view
 	};
 
 	NvBinaryStreamWrite CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey);
@@ -39,16 +41,9 @@ namespace LvProtocol {
 	NvBinaryStreamWrite CreateStartGame();
 	NvBinaryStreamWrite CreateCreateHero(LvPlayer* player);
 	NvBinaryStreamWrite CreateAvatarInfo(LvPlayer* player);
+	NvBinaryStreamWrite CreateEnterVisibility(LvObjectBase* obj, LvClient* enteringVision);
+	NvBinaryStreamWrite CreateEnterLocalVisibility(LvObjectBase* obj, LvClient* enteringVision);
 }
 
-template<>
-inline void NvBinaryStreamWrite::Write(LvProtocol::PacketHeaders v)
-{
-	this->Write<unsigned char>(v);
-}
-
-template<>
-inline void NvBinaryStreamWrite::Write(LvMapId v)
-{
-	this->Write<int>(v);
-}
+template<> inline void NvBinaryStreamWrite::Write(const LvProtocol::PacketHeaders& v) { this->Write<unsigned char>(v); }
+template<> inline void NvBinaryStreamWrite::Write(const LvMapId& v) { this->Write<int>(v); }

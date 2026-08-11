@@ -218,5 +218,8 @@
     <ClInclude Include="LvDebugInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LvClientVisionInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
