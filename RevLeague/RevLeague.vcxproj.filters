@@ -221,5 +221,8 @@
     <ClInclude Include="LvClientVisionInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LvObjectIterator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

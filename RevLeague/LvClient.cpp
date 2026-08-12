@@ -3,6 +3,7 @@
 #include "LvGame.h"
 #include "LvMap.h"
 #include "LvProtocol.h"
+#include "LvObjectIterator.h"
 
 LvClient::LvClient(ENetPeer* peer)
 {
@@ -39,6 +40,57 @@ void LvClient::SetPlayer(LvPlayer* player)
 			this->associatedPlayer->SetClient(nullptr);
 
 		this->associatedPlayer = nullptr;
+		this->SetState(CST_UNKNOWN);
+	}
+}
+
+void LvClient::PreVisionUpdate()
+{
+	if (this->GetState() != CST_IN_GAME)
+		return;
+
+	int playerIndex = this->GetPlayer()->GetPlayerIndex();
+
+	for (LvObjectBase* obj : LvObjectIterator().IterateAll())
+	{
+		LvClientVisionInfo* visionInfo = obj->GetVisionInfoForPlayer(playerIndex);
+
+		if (!visionInfo->wasVisibleAtLeastOnce)
+		{
+			LogAssert(!visionInfo->isCurrentlyVisible);
+			LogAssert(!visionInfo->wasPreviouslyVisible);
+		}
+
+		visionInfo->wasPreviouslyVisible = visionInfo->isCurrentlyVisible;
+		visionInfo->isCurrentlyVisible = false;
+	}
+}
+
+void LvClient::PostVisionUpdate()
+{
+	if (this->GetState() != CST_IN_GAME)
+		return;
+
+	int playerIndex = this->GetPlayer()->GetPlayerIndex();
+
+	for (LvObjectBase* obj : LvObjectIterator().IterateAll())
+	{
+		LvClientVisionInfo* visionInfo = obj->GetVisionInfoForPlayer(playerIndex);
+
+		// note: can't use CanSee here because this is the function that gives info to CanSee in the first place
+		visionInfo->isCurrentlyVisible = obj->IsTeamVisionGranted(this->GetPlayer()->GetTeam());
+
+		if (!visionInfo->wasPreviouslyVisible && visionInfo->isCurrentlyVisible)
+		{
+			// unit entered vision
+			visionInfo->wasVisibleAtLeastOnce = true;
+			LogInfo("Unit {} entered {}'s vision", obj, this->GetPlayer()->GetPlayerName());
+		}
+		else if (visionInfo->wasPreviouslyVisible && !visionInfo->isCurrentlyVisible)
+		{
+			// unit left vision
+			LogInfo("Unit {} left {}'s vision", obj, this->GetPlayer()->GetPlayerName());
+		}
 	}
 }
 

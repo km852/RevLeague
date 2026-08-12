@@ -26,7 +26,7 @@ LvPlayer::LvPlayer(LvGameSettings::PlayerInfo* playerInfo)
 void LvPlayer::CreateHero()
 {
 	this->hero = LvObjectFactory().Position(Vector3(6000.f, 0.f, 6000.f)).Rotation(Vector3(0.0f, 0.0f, 1.0f)).ModelName(this->characterName).
-		Team(this->team).Name(this->playerName).CreateAndAdd<LvObjectHero>();
+		Team(this->team).Name(this->playerName).Player(this).CreateAndAdd<LvObjectHero>();
 }
 
 void LvPlayer::SetClient(LvClient* client)

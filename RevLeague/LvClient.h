@@ -2,7 +2,6 @@
 
 #include "NvLib.h"
 #include "LvTypes.h"
-#include "LvClientVisionInfo.h"
 
 #include "Dependencies/enet/enet.h"
 
@@ -39,8 +38,6 @@ class LvClient final : public NvNonCopyable {
 	LvPlayer* associatedPlayer = nullptr;
 	LoadingProgress loadingProgress;
 
-	std::unordered_map<NetworkId, LvClientVisionInfo> unitVisionInfo;
-
 public:
 	explicit LvClient(ENetPeer* peer);
 	~LvClient();
@@ -57,9 +54,8 @@ public:
 	LvPlayer* GetPlayer() const { return associatedPlayer; }
 	void SetPlayer(LvPlayer* player); // will also update the LvPlayer's association
 
-	inline bool HasSeenUnitPreviously(NetworkId netId) { return this->unitVisionInfo.find(netId) != this->unitVisionInfo.end(); }
-	//inline void UnitEnteredVision(NetworkId netId) { this->unitsSeenAtLeastOnce.insert(netId); }
-	//inline void UnitLeftVision(NetworkId netId) { this->unitsSeenAtLeastOnce.insert(netId); }
+	void PreVisionUpdate();
+	void PostVisionUpdate();
 
 	void FinishLoading();
 	void UpdateClock();

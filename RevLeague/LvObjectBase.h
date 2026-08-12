@@ -3,30 +3,35 @@
 #include "LvTypes.h"
 #include "NvLib.h"
 
+#include "LvClientVisionInfo.h"
+
 class LvObjectBase : public NvNonCopyable {
 	friend LvDebugInterface;
 private:
 	std::string objName;
 	NetworkId netId;
 	LvTeam team;
-	LvObjectType objectType;
 
 	Vector3 position;
 	Vector3 rotation;
 
-	float visionRange;
-
 	CharData* charData;
 	std::unique_ptr<LvStatsBase> stats;
+
+	float visionRange;
 
 	float gameplayCollisionRadius = 1.0f; // collision with missiles
 	float selectionRadius = 1.0f; // grass acquisition radius
 	float pathfindingRadius;
 
+	LvClientVisionInfo clientVisionInfo[MaxGameClients];
+
 	bool orderVisionGranted = false;
 	bool chaosVisionGranted = false;
 
 protected:
+	LvObjectType objectType;
+
 	LvObjectBase(const LvObjectFactory& builder, LvStatsBase* specifiedStats);
 
 	virtual void RecalculateStats_AssignBaseStats(LvStatsBase* clonedStats);
@@ -39,10 +44,12 @@ public:
 	Vector3 GetRotation() const { return rotation; }
 	NetworkId GetNetworkId() const { return netId; }
 	LvTeam GetTeam() const { return team; }
+	LvObjectType GetType() const { return objectType; }
 
 	const std::string& GetName() const { return objName; }
 	CharData* GetCharData() const { return charData; }
 
+	float GetVisionRadius() const { return visionRange; }
 	float GetPathfindingRadius() const { return pathfindingRadius; }
 	float GetGameplayCollisionRadius() const { return gameplayCollisionRadius; }
 	float GetSelectionRadius() const { return selectionRadius; }
@@ -60,6 +67,8 @@ public:
 	// can team X see this unit? (use CanSee instead of this function to check visibility)
 	bool IsTeamVisionGranted(LvTeam team) const { return team == TT_BLUE ? orderVisionGranted : (team == TT_RED ? chaosVisionGranted : true); }
 	void SetTeamVisionGranted(LvTeam team, bool isVisible) { if (team == TT_BLUE) orderVisionGranted = isVisible; else if (team == TT_RED) chaosVisionGranted = isVisible; }
+
+	LvClientVisionInfo* GetVisionInfoForPlayer(int playerIndex) { return &this->clientVisionInfo[playerIndex]; }
 
 	virtual std::vector<NvBinaryStreamWrite> CreateEnterVisibilityPackets(LvClient* seeingClient);
 	virtual void WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* seeingClient);

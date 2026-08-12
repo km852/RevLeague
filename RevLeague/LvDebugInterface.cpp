@@ -120,6 +120,7 @@ void LvDebugInterface::OnObjectUpdate(LvObjectBase* object)
 	stream.Write(object->GetRotation());
 	stream.Write(object->GetNetworkId());
 	stream.Write(object->GetTeam());
+	stream.Write(object->GetVisionRadius());
 	stream.Write(object->GetStats()->GetHealth());
 	stream.Write(object->GetStats()->GetMaxHealth().GetTotalValue());
 	stream.Write(object->GetStats()->GetResource());

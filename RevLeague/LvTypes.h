@@ -31,6 +31,7 @@ class LvPlayer;
 class LvClient;
 class LvClientVisionInfo;
 class LvMap;
+class LvObjectIterator;
 class LvMeshCell;
 class LvMesh;
 class LvDebugInterface;
@@ -52,6 +53,8 @@ class LvStatsHero;
 class CharData;
 
 typedef ICharacterScript* (*CreateCharacterScript_t)(LvObjectBase* object);
+
+constexpr inline int MaxGameClients = 12;
 
 enum LvTeam {
 	TT_NONE = 0,

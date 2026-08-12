@@ -169,6 +169,7 @@
     <ClInclude Include="LvObjectBase.h" />
     <ClInclude Include="LvObjectFactory.h" />
     <ClInclude Include="LvObjectHero.h" />
+    <ClInclude Include="LvObjectIterator.h" />
     <ClInclude Include="LvPlayer.h" />
     <ClInclude Include="LvProtocol.h" />
     <ClInclude Include="LvStatReplicator.h" />
