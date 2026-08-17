@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Windows.h>
+#include "LvTypes.h"
 
-class LvGameClock final {
+class LvGameClock final : public NvNonCopyable {
 	friend class LvGameTimer;
 
 private:
@@ -20,8 +21,6 @@ private:
 
 public:
 	LvGameClock();
-	LvGameClock(LvGameClock const&) = delete;
-	LvGameClock& operator=(LvGameClock const&) = delete;
 
 	static inline LARGE_INTEGER frequency{};
 
@@ -48,7 +47,6 @@ private:
 public:
 	LvGameTimer() : LvGameTimer(false) {}
 	LvGameTimer(bool noInit); // "noInit" will not initialize the timer, leaves the beginTime at zero
-	LvGameTimer& operator=(LvGameTimer const& other) { this->beginFrameTime.QuadPart = other.beginFrameTime.QuadPart; return *this; }
 
 	void Reset();
 	void Reset(double offsetSeconds);

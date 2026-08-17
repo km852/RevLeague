@@ -7,6 +7,11 @@
 
 #include "Assets/CharData.h"
 
+void LvProtocol::WriteMovementData(NvBinaryStreamWrite& packet, LvObjectBase* actor)
+{
+
+}
+
 NvBinaryStreamWrite LvProtocol::CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey)
 {
     NvBinaryStreamWrite writer(36);

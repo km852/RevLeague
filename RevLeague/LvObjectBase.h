@@ -70,8 +70,11 @@ public:
 
 	LvClientVisionInfo* GetVisionInfoForPlayer(int playerIndex) { return &this->clientVisionInfo[playerIndex]; }
 
-	virtual std::vector<NvBinaryStreamWrite> CreateEnterVisibilityPackets(LvClient* seeingClient);
-	virtual void WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* seeingClient);
+	virtual std::vector<NvBinaryStreamWrite> CreateEnterVisibilityPackets(LvClient* visionClient);
+	virtual void WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* visionClient);
+
+	virtual void SendOnEnterVisionPackets(LvClient* visionClient) = 0;
+	virtual void SendOnLeaveVisionPackets(LvClient* visionClient) = 0;
 
 	// test whether this unit can directly see another unit (this is expensive, prefer CanSee instead)
 	bool LineOfSightTest(LvObjectBase* target);

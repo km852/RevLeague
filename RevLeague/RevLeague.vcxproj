@@ -132,6 +132,7 @@
     <ClCompile Include="LvNetwork.cpp" />
     <ClCompile Include="LvObjectBase.cpp" />
     <ClCompile Include="LvObjectHero.cpp" />
+    <ClCompile Include="LvPacketSyncManager.cpp" />
     <ClCompile Include="LvPlayer.cpp" />
     <ClCompile Include="LvProtocol.cpp" />
     <ClCompile Include="LvServer.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="LvObjectFactory.h" />
     <ClInclude Include="LvObjectHero.h" />
     <ClInclude Include="LvObjectIterator.h" />
+    <ClInclude Include="LvPacketSyncManager.h" />
     <ClInclude Include="LvPlayer.h" />
     <ClInclude Include="LvProtocol.h" />
     <ClInclude Include="LvStatReplicator.h" />

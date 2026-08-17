@@ -79,12 +79,12 @@ void LvObjectBase::RecalculateStats()
 	this->stats->ApplyUpdatedStats(statsCopy.get());
 }
 
-std::vector<NvBinaryStreamWrite> LvObjectBase::CreateEnterVisibilityPackets(LvClient* seeingClient)
+std::vector<NvBinaryStreamWrite> LvObjectBase::CreateEnterVisibilityPackets(LvClient* visionClient)
 {
 	return {};
 }
 
-void LvObjectBase::WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* seeingClient)
+void LvObjectBase::WriteEnterVisibilityPacketSuffix(NvBinaryStreamWrite& visPacket, LvClient* visionClient)
 {
 	visPacket.Write<char>(0); // inventory info
 	visPacket.Write<char>(0); // shield info (if 1, then three floats follow)

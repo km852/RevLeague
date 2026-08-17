@@ -28,6 +28,14 @@ namespace LvProtocol {
 		PKT_OnEnterLocalVisiblityClient = 0xAE, // "local visibility" = within bounds of camera view
 	};
 
+	enum WaypointDataType : unsigned char {
+		WDT_WAYPOINTS_SPEED = 1,
+		WDT_WAYPOINTS = 2,
+		WDT_STOPPED_POS = 3
+	};
+
+	void WriteMovementData(NvBinaryStreamWrite& packet, LvObjectBase* actor);
+
 	NvBinaryStreamWrite CreatePeerRegistration(LvPlayer* player, unsigned long long encryptedKey);
 	NvBinaryStreamWrite CreateSendGameNumber(LvPlayer* player);
 	NvBinaryStreamWrite CreateQueryStatusAnswer();

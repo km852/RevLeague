@@ -13,4 +13,7 @@ protected:
 
 public:
 	LvPlayer* GetPlayer() { return player; }
+
+	virtual void SendOnEnterVisionPackets(LvClient* visionClient) override;
+	virtual void SendOnLeaveVisionPackets(LvClient* visionClient) override;
 };

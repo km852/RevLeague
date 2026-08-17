@@ -83,12 +83,16 @@ void LvClient::PostVisionUpdate()
 		if (!visionInfo->wasPreviouslyVisible && visionInfo->isCurrentlyVisible)
 		{
 			// unit entered vision
+			obj->SendOnEnterVisionPackets(this);
+
 			visionInfo->wasVisibleAtLeastOnce = true;
 			LogInfo("Unit {} entered {}'s vision", obj, this->GetPlayer()->GetPlayerName());
 		}
 		else if (visionInfo->wasPreviouslyVisible && !visionInfo->isCurrentlyVisible)
 		{
 			// unit left vision
+			obj->SendOnLeaveVisionPackets(this);
+
 			LogInfo("Unit {} left {}'s vision", obj, this->GetPlayer()->GetPlayerName());
 		}
 	}
